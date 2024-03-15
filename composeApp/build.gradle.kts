@@ -1,11 +1,15 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.spotless)
 }
 
 kotlin {
@@ -64,6 +68,9 @@ kotlin {
 
             implementation(libs.haze)
             implementation(libs.haze.materials)
+
+            implementation(libs.generativeai.google)
+            implementation(libs.calf.filepicker)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -110,6 +117,10 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
+    lint {
+        quiet = true
+        abortOnError = false
+    }
 }
 
 compose.desktop {
@@ -126,4 +137,47 @@ compose.desktop {
 
 compose.experimental {
     web.application {}
+}
+
+buildkonfig {
+    packageName = "com.unwur.mabiaho"
+
+    val localProperties =
+        Properties().apply {
+            val propsFile = rootProject.file("local.properties")
+            if (propsFile.exists()) {
+                load(propsFile.inputStream())
+            }
+        }
+
+    defaultConfigs {
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "GEMINI_API_KEY",
+            localProperties["gemini_api_key"]?.toString() ?: "",
+        )
+    }
+}
+
+configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+    kotlin {
+        target("**/*.kt")
+        targetExclude("${layout.buildDirectory}/**/*.kt")
+        targetExclude("bin/**/*.kt")
+        ktlint().editorConfigOverride(
+            mapOf(
+                "ktlint_standard_filename" to "disabled",
+                "ktlint_standard_function-naming" to "disabled",
+            ),
+        )
+        licenseHeaderFile(rootProject.file("licenses/MIT"))
+    }
+    kotlinGradle {
+        target("**/*.gradle.kts")
+        ktlint()
+    }
+}
+
+task("testClasses").doLast {
+    println("This is a dummy testClasses task")
 }

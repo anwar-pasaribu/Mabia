@@ -9,7 +9,6 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MyAppTheme(
     useDarkColors: Boolean = isSystemInDarkTheme(),
-    useDynamicColors: Boolean = false,
     content: @Composable () -> Unit
 ) {
     MaterialTheme(

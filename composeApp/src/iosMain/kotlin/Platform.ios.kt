@@ -1,3 +1,7 @@
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
+import org.jetbrains.skia.Image
+import platform.Foundation.NSUUID
 import platform.UIKit.UIDevice
 
 class IOSPlatform: Platform {
@@ -5,3 +9,11 @@ class IOSPlatform: Platform {
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()
+
+actual fun ByteArray.toComposeImageBitmap(): ImageBitmap {
+    return Image.makeFromEncoded(this).toComposeImageBitmap()
+}
+
+actual fun getUUIDString(): String {
+    return NSUUID.UUID().UUIDString
+}
