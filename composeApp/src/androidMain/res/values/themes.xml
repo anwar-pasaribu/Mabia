@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Platform.Theme.MyAppTheme" parent="android:Theme.Material.Light" />
+
+    <style name="Theme.MyAppTheme" parent="Platform.Theme.MyAppTheme">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">@color/etongPrimary</item>
+
+    </style>
+</resources>
