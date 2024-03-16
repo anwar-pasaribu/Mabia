@@ -1,4 +1,4 @@
-package viewmodel
+package ui.screen.ai
 
 import dev.shreyaspatil.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers
@@ -12,12 +12,11 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import service.GenerativeAiService
 import toComposeImageBitmap
-import ui.screen.ai.ChatUiState
-import ui.screen.ai.MutableChatUiState
 import ui.screen.ai.model.ModelChatMessage
 import ui.screen.ai.model.UserChatMessage
 
 class ChatViewModel(private val aiService: GenerativeAiService) {
+
     private val coroutineScope = MainScope()
 
     private val chat = aiService.startChat(

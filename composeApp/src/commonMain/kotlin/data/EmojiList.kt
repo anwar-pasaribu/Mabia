@@ -1,5 +1,7 @@
 package data
 
+import ui.screen.emojis.model.EmojiUiModel
+
 val emojiList = listOf(
     "\uD83D\uDE00", // 😀 Grinning Face
     "\uD83D\uDE01", // 😁 Beaming Face with Smiling Eyes
@@ -120,3 +122,7 @@ val emojiList = listOf(
     "\uD83E\uDDE7", // 🧑‍🦳‍🎨 Person with White Hair: Artist
     "\uD83E\uDDE8", // 🧑‍🦲‍🎨 Person with Bald: Artist
 )
+
+fun generateEmojiForUI(): List<EmojiUiModel> = emojiList.map {
+    EmojiUiModel(emojiUnicode = it)
+}

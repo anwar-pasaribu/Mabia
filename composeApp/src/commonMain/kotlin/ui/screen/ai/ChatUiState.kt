@@ -8,18 +8,12 @@ import androidx.compose.runtime.setValue
 import ui.screen.ai.model.ChatMessage
 import ui.screen.ai.model.ModelChatMessage
 
-/**
- * UI state model for Chat listing screen
- */
 @Stable
 interface ChatUiState {
     val messages: List<ChatMessage>
     val canSendMessage: Boolean
 }
 
-/**
- * Mutable state implementation for [ChatUiState]
- */
 class MutableChatUiState : ChatUiState {
     override val messages = mutableStateListOf<ChatMessage>()
 

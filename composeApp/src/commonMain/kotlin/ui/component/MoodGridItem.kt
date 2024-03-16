@@ -3,13 +3,16 @@ package ui.component
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateSize
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,21 +21,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import ui.extension.bouncingClickable
 
 @Composable
 fun MoodGridItem(
-    content: @Composable () -> Unit
+    content: String,
+    selected: Boolean = false,
+    onSelect: (String) -> Unit
 ) {
 
-    var isPressed by remember { mutableStateOf(false) }
+    var isSelected by remember { mutableStateOf(selected) }
 
-    val animationTransition = updateTransition(isPressed, label = "ScalingBoxTransition")
+    val animationTransition = updateTransition(isSelected, label = "ScalingBoxTransition")
     val roundedCornerAnimationVal by animationTransition.animateDp(
-        targetValueByState = { pressed -> if (pressed) 16.dp else 28.dp },
+        targetValueByState = { pressed -> if (pressed) 32.dp else 24.dp },
         label = "RoundedCornerTransition",
         transitionSpec = {
             spring(
@@ -41,74 +48,48 @@ fun MoodGridItem(
         }
     )
 
-    val sizeWidthAnimation by animationTransition.animateFloat(
+    val sizeAnimation by animationTransition.animateSize(
         targetValueByState = { pressed ->
-            if (pressed) {
-                1.25f
-            } else {
-                1f
-            }
-        },
-        label = "SizeWidthTransition",
+            if (pressed) { Size(1.45F, 1.45F) } else { Size(1F, 1F) } },
+        label = "SizeTransition",
         transitionSpec = {
-            spring(dampingRatio = Spring.DampingRatioLowBouncy)
+            spring(dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMediumLow)
         }
     )
 
-    val sizeHeightAnimation by animationTransition.animateFloat(
-        targetValueByState = { pressed ->
-            if (pressed) {
-                1.25f
-            } else {
-                1f
-            }
-        },
-        label = "SizeHeightTransition",
-        transitionSpec = {
-            spring(dampingRatio = Spring.DampingRatioLowBouncy)
-        }
+    val alphaAnimVal by animationTransition.animateFloat(
+        targetValueByState = { pressed -> if (pressed) { 0F } else { 1F } },
+        label = "AlphaTransition",
     )
-
-    val offsetAnimationVal by animationTransition.animateDp(
-        targetValueByState = { pressed ->
-            if (pressed) {
-                0.dp
-            } else {
-                0.dp
-            }
-        },
-        label = "OffsetYTransition",
-    )
-
-    val shadowAnimationVal by animationTransition.animateFloat(
-        targetValueByState = { pressed ->
-            if (pressed) { 16F } else { 0F }
-        },
-        label = "ElevationShadowTransition",
-    )
-
-    val zIndexAnimVal by animationTransition.animateFloat(
-        targetValueByState = { pressed ->
-            if (pressed) { 2F } else { 1F }
-        },
-        label = "ElevationShadowTransition",
-    )
-
 
     Box(
         modifier = Modifier
+            .fillMaxSize()
             .graphicsLayer {
-                scaleX = sizeWidthAnimation
-                scaleY = sizeHeightAnimation
-                shadowElevation = shadowAnimationVal
+                clip = true
+                scaleX = sizeAnimation.width
+                scaleY = sizeAnimation.height
             }
-            .offset(x = 0.dp, offsetAnimationVal)
-            .bouncingClickable { isPressed = !isPressed }
+            .bouncingClickable {
+                isSelected = !isSelected
+                onSelect(content)
+            }
             .clip(RoundedCornerShape(roundedCornerAnimationVal))
-            .zIndex(zIndexAnimVal)
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+            .aspectRatio(1F)
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(
+                alpha = alphaAnimVal
+            )),
         contentAlignment = Alignment.Center
     ) {
-        content()
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = content,
+                fontSize = TextUnit(64F, TextUnitType.Sp)
+            )
+        }
     }
 }
