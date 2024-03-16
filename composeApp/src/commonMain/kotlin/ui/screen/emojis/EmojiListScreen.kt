@@ -5,6 +5,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,7 +40,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import data.generateEmojiForUI
+import data.EmojiList
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
@@ -55,7 +56,7 @@ import ui.extension.FadeAnimation
 fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
 
     val hazeState = remember { HazeState() }
-    val emojiList = remember { generateEmojiForUI() }
+    val emojiList = remember { mutableStateListOf(*EmojiList.generateEmojiForUI().toTypedArray()) }
     val selectedEmojiUnicodes = remember { mutableStateListOf<String>() }
     val lazyListState = rememberLazyGridState()
 
@@ -100,12 +101,12 @@ fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(items = emojiList) { item ->
+                items(items = emojiList, key = { it.id }) { item ->
                     MoodGridItem(
                         content = item.emojiUnicode,
                         selected = item.selected
                     ) { selectedUnicode ->
-                        item.selected = !item.selected
+                        emojiList[item.id].selected = !emojiList[item.id].selected
                         if (item.selected) {
                             selectedEmojiUnicodes.add(selectedUnicode.trim())
                         } else {
@@ -121,9 +122,9 @@ fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
 
             AnimatedVisibility(
                 modifier = Modifier.align(Alignment.BottomCenter),
-                visible = selectedEmojiUnicodes.size >= 3,
-                enter = fadeIn() + slideInVertically(initialOffsetY = { it * 1 /* BOTTOM to UP*/}),
-                exit = fadeOut()
+                visible = selectedEmojiUnicodes.size >= 1,
+                enter = fadeIn() + slideInVertically(initialOffsetY = { it /* BOTTOM to UP*/}),
+                exit = fadeOut().plus(slideOutVertically(targetOffsetY = { it }))
             ) {
                 val gradientColors = listOf(
                     Color(0x00000000),  // Transparent
