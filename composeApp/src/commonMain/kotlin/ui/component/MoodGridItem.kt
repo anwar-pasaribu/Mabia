@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.TextUnit
@@ -30,6 +32,7 @@ import ui.extension.bouncingClickable
 
 @Composable
 fun MoodGridItem(
+    modifier: Modifier = Modifier,
     content: String,
     selected: Boolean = false,
     onSelect: (String) -> Unit
@@ -50,36 +53,48 @@ fun MoodGridItem(
 
     val sizeAnimation by animationTransition.animateSize(
         targetValueByState = { pressed ->
-            if (pressed) { Size(1.45F, 1.45F) } else { Size(1F, 1F) } },
+            if (pressed) {
+                Size(1.45F, 1.45F)
+            } else {
+                Size(1F, 1F)
+            }
+        },
         label = "SizeTransition",
         transitionSpec = {
-            spring(dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessMediumLow)
+            spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMediumLow
+            )
         }
     )
 
     val alphaAnimVal by animationTransition.animateFloat(
-        targetValueByState = { pressed -> if (pressed) { 0F } else { 1F } },
+        targetValueByState = { pressed ->
+            if (pressed) {
+                0F
+            } else {
+                1F
+            }
+        },
         label = "AlphaTransition",
     )
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .graphicsLayer {
-                clip = true
-                scaleX = sizeAnimation.width
-                scaleY = sizeAnimation.height
-            }
-            .bouncingClickable {
-                isSelected = !isSelected
-                onSelect(content)
-            }
-            .clip(RoundedCornerShape(roundedCornerAnimationVal))
-            .aspectRatio(1F)
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest.copy(
-                alpha = alphaAnimVal
-            )),
+        modifier = modifier.then(
+            Modifier.fillMaxSize()
+                .scale(sizeAnimation.width, sizeAnimation.height)
+                .bouncingClickable {
+                    isSelected = !isSelected
+                    onSelect(content)
+                }
+                .clip(RoundedCornerShape(roundedCornerAnimationVal))
+                .aspectRatio(1F)
+                .background(
+                    MaterialTheme.colorScheme.surfaceContainerHighest.copy(
+                        alpha = alphaAnimVal
+                    )
+                )
+        ),
         contentAlignment = Alignment.Center
     ) {
         Box(

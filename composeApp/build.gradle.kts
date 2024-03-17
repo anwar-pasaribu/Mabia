@@ -48,6 +48,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            binaryOption("bundleId", "com.unwur.mabiaho.composeApp")
         }
     }
     
@@ -68,13 +69,24 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
+            implementation(libs.kotlinx.datetime)
+
             implementation(libs.haze)
             implementation(libs.haze.materials)
 
             implementation(libs.generativeai.google)
             implementation(libs.calf.filepicker)
 
-            api("moe.tlaster:precompose:1.6.0-rc03")
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+
+            implementation("com.russhwolf:multiplatform-settings-no-arg:1.1.1")
+
+            api(libs.precompose)
+            api(libs.precompose.viewmodel)
+
+            implementation("co.touchlab:stately-concurrent-collections:2.0.6")
+
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
