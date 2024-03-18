@@ -1,7 +1,6 @@
 package ui.screen.emojis
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
@@ -29,7 +28,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -65,7 +63,6 @@ import org.koin.core.parameter.parametersOf
 import ui.component.GlassyButton
 import ui.component.HomeCardDisplay
 import ui.component.MoodGridItem
-import ui.extension.FadeAnimation
 import ui.screen.emojis.model.EmojiUiModel
 import ui.viewmodel.EmojiListScreenViewModel
 
@@ -82,6 +79,7 @@ fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
         parametersOf(stateHolder)
     }
     val emojiListFlowState by viewModel.emojiListStateFlow.collectAsState()
+    val showOnboardingBottomMenu by viewModel.showOnboardingBottomMenu.collectAsState()
 
     Scaffold(
         topBar = {
@@ -96,7 +94,7 @@ fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
                         Text("halo,", style = MaterialTheme.typography.headlineLarge)
                     }
                 )
-                FadeAnimation(true) {
+                if(showOnboardingBottomMenu) {
                     HomeCardDisplay(
                         modifier = Modifier.padding(16.dp)
                             .shadow(
@@ -109,11 +107,11 @@ fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
             }
         },
     ) { contentPadding ->
-        Box(modifier = Modifier.fillMaxSize().animateContentSize()) {
+        Box(modifier = Modifier.fillMaxSize()) {
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxSize().haze(state = hazeState),
                 state = lazyListState,
-                columns = GridCells.Fixed(3),
+                columns = GridCells.Adaptive(128.dp),
                 contentPadding = PaddingValues(
                     start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
                     top = contentPadding.calculateTopPadding() + 16.dp,
@@ -138,16 +136,6 @@ fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
                     }
                 }
 
-//                this.emojiGridContent(emojiListFlowState, 3, lazyListState) {
-//                        selectedUnicode ->
-//                    emojiListFlowState[item.id].selected = !emojiListFlowState[item.id].selected
-//                    if (item.selected) {
-//                        selectedEmojiUnicodes.add(selectedUnicode.trim())
-//                    } else {
-//                        selectedEmojiUnicodes.remove(selectedUnicode.trim())
-//                    }
-//                }
-
                 item {
                     Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
                 }
@@ -155,7 +143,7 @@ fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
 
             AnimatedVisibility(
                 modifier = Modifier.align(Alignment.BottomCenter),
-                visible = selectedEmojiUnicodes.size >= 1,
+                visible = selectedEmojiUnicodes.size >= 3 && showOnboardingBottomMenu,
                 enter = fadeIn() + slideInVertically(initialOffsetY = { it /* BOTTOM to UP*/}),
                 exit = fadeOut().plus(slideOutVertically(targetOffsetY = { it }))
             ) {
@@ -181,6 +169,7 @@ fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
                             Text(text = "Selesai")
                         }
                     ) {
+                        viewModel.setOnboardingAlmostFinished()
                         onScreenStateChanged(3)
                     }
                 }
@@ -188,6 +177,16 @@ fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
         }
     }
 }
+
+//                this.emojiGridContent(emojiListFlowState, 3, lazyListState) {
+//                        selectedUnicode ->
+//                    emojiListFlowState[item.id].selected = !emojiListFlowState[item.id].selected
+//                    if (item.selected) {
+//                        selectedEmojiUnicodes.add(selectedUnicode.trim())
+//                    } else {
+//                        selectedEmojiUnicodes.remove(selectedUnicode.trim())
+//                    }
+//                }
 
 fun LazyGridScope.emojiGridContent(
     emojiList: List<EmojiUiModel>,
