@@ -86,7 +86,6 @@ fun Modifier.bouncingWithShadowClickable(
             this.shape = shape
             this.spotShadowColor = DefaultShadowColor.copy(alpha = .35F)
         }
-        .hoverable(interactionSource = interactionSource)
         .clickable(
             interactionSource = interactionSource,
             indication = null,
