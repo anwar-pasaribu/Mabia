@@ -100,7 +100,7 @@ fun CongratulateScreen(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 200.dp),
             buttonText = {
-                Text(text = "Kembali ke Home", style = MaterialTheme.typography.bodyLarge)
+                Text(text = "Kembali ke Home", style = MaterialTheme.typography.labelLarge)
             }
         ) {
             onDismiss()

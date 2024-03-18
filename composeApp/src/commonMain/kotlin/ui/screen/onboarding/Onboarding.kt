@@ -73,8 +73,8 @@ fun Onboarding1(onClick: () -> Unit) {
                 Text(
                     modifier = Modifier.defaultMinSize(minWidth = 128.dp),
                     text = "Mulai",
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center
+                    style = MaterialTheme.typography.labelLarge,
+                    textAlign = TextAlign.Center,
                 )
             }
         ) {
@@ -104,8 +104,7 @@ fun Onboarding2(onClick: () -> Unit) {
         Text(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(start = 72.dp, top = 128.dp)
-                .alpha(1f),
+                .padding(start = 72.dp, top = 128.dp),
             text = "Mood kamu kalau\nberupa emoji\nseperti apa?",
             fontWeight = FontWeight.ExtraBold,
             color = Color.White,
@@ -123,7 +122,7 @@ fun Onboarding2(onClick: () -> Unit) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 200.dp),
-            buttonText = { Text(text = "Pilih Emoji", style = MaterialTheme.typography.bodyLarge) }
+            buttonText = { Text(text = "Pilih Emoji", style = MaterialTheme.typography.labelLarge) }
         ) {
             onClick()
         }
