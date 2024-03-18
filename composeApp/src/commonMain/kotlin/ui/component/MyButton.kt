@@ -1,14 +1,23 @@
 package ui.component
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.DefaultShadowColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import ui.extension.bouncingWithShadowClickable
 
 @Composable
 fun GlassyButton(
@@ -17,12 +26,43 @@ fun GlassyButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = modifier.then(Modifier
-            .bouncingWithShadowClickable(enabled = enabled) { onClick() }
-            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(percent = 50))
-            .padding(horizontal = 32.dp, vertical = 10.dp)
-        )
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val animationTransition = updateTransition(isPressed, label = "BouncingClickableTransition")
+    val scaleFactor by animationTransition.animateFloat(
+        targetValueByState = { pressed -> if (pressed) .975f else 1f },
+        label = "BouncingClickableScaleFactorTransition",
+    )
+    val opacity by animationTransition.animateFloat(
+        targetValueByState = { pressed -> if (pressed) 0.95f else 1f },
+        label = "BouncingClickableOpacityTransition"
+    )
+    val shadow by animationTransition.animateDp(
+        targetValueByState = { pressed -> if (pressed) 8.dp else 16.dp },
+        label = "BouncingClickableShadowTransition"
+    )
+
+    TextButton(
+        modifier = modifier.then(
+            Modifier.defaultMinSize(minWidth = 256.dp).graphicsLayer {
+                this.scaleX = scaleFactor
+                this.scaleY = scaleFactor
+                this.alpha = opacity
+                this.shape = RoundedCornerShape(percent = 50)
+                this.shadowElevation = shadow.value
+                this.spotShadowColor = DefaultShadowColor.copy(alpha = .35F)
+            }
+        ),
+        enabled = enabled,
+        onClick = { onClick() },
+        interactionSource = interactionSource,
+        colors = ButtonDefaults.textButtonColors().copy(
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
     ) {
         buttonText()
     }
