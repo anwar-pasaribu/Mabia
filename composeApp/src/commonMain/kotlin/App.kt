@@ -39,12 +39,10 @@ fun App() {
 
                 NavHost(
                     navigator = navigator,
-                    navTransition = NavTransition(),
                     initialRoute = initialScreen,
                 ) {
                     scene(
                         route = "/home",
-                        navTransition = NavTransition(),
                     ) {
                         EmojiListScreen {
                             navigator.navigate("/congratulation")
@@ -68,7 +66,7 @@ fun App() {
                     ) {
                         CongratulateScreen {
                             viewModel.saveFinishedOnboarding()
-                            navigator.goBack()
+                            navigator.navigate("/home")
                         }
                     }
                     scene(route = "/onboarding1") {
@@ -76,7 +74,7 @@ fun App() {
                             navigator.navigate("/onboarding2")
                         }
                     }
-                    scene(route = "/onboarding2", navTransition = NavTransition()) {
+                    scene(route = "/onboarding2") {
                         Onboarding2 {
                             navigator.navigate("/home")
                         }
