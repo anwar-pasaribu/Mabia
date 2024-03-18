@@ -19,7 +19,7 @@ internal val GreenDark = Color(0xFF0f8038)
 
 val AppLightColors = lightColorScheme(
     primary = Slate800,
-    onPrimary = Color.White,
+    onPrimary = Color.Black,
     primaryContainer = Green,
     secondary = Orange700,
     onSecondary = Color.Black,
@@ -28,7 +28,7 @@ val AppLightColors = lightColorScheme(
 
 val AppDarkColors = darkColorScheme(
     primary = Slate200,
-    onPrimary = Color.Black,
+    onPrimary = Color.White,
     primaryContainer = GreenDark,
     secondary = Orange500,
     onSecondary = Color.Black,
