@@ -16,7 +16,7 @@ fun appModule() = module {
         KeyValueStorageRepositoryImpl(localSetting = get())
     }
     single {
-        EmojiListScreenViewModel(savedStateHolder = it.get())
+        EmojiListScreenViewModel(savedStateHolder = it.get(), keyValueStorageRepository = get())
     }
     single {
         MainViewModel(keyValueStorageRepository = get())
