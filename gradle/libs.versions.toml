@@ -17,13 +17,14 @@ junit = "4.13.2"
 kotlin = "1.9.22"
 haze = "0.6.2"
 calf = "0.4.0"
-generativeai = "0.2.0-1.0.0-wasm"
+generativeai = "0.2.0-1.0.0"
 buildkonfig = "0.15.1"
 precompose = "1.6.0-rc03"
 spotless = "6.25.0"
 koin = "3.6.0-wasm-alpha2"
 koinCompose = "1.2.0-alpha3"
 kotlinxDatetime = "0.5.0"
+sqlDelight = "2.0.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -48,6 +49,12 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
 precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose" }
 
+sqldelight-androidDriver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
+sqldelight-jvmDriver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqlDelight" }
+sqldelight-nativeDriver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
+sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
+sqldelight-primitiveAdapters = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -56,3 +63,4 @@ jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
