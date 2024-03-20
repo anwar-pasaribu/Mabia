@@ -51,11 +51,7 @@ fun MoodGridItem(
 
     val sizeAnimation by animationTransition.animateSize(
         targetValueByState = { pressed ->
-            if (pressed) {
-                Size(1.45F, 1.45F)
-            } else {
-                Size(1F, 1F)
-            }
+            if (pressed) { Size(1.45F, 1.45F) } else { Size(1F, 1F) }
         },
         label = "SizeTransition",
         transitionSpec = {
@@ -67,13 +63,7 @@ fun MoodGridItem(
     )
 
     val alphaAnimVal by animationTransition.animateFloat(
-        targetValueByState = { pressed ->
-            if (pressed) {
-                0F
-            } else {
-                1F
-            }
-        },
+        targetValueByState = { pressed -> if (pressed) { 0F } else { 1F } },
         label = "AlphaTransition",
     )
 
