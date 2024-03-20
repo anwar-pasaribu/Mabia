@@ -85,6 +85,7 @@ kotlin {
             api(libs.precompose)
             api(libs.precompose.viewmodel)
 
+            implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
             implementation("co.touchlab:stately-concurrent-collections:2.0.6")
 
         }
