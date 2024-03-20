@@ -91,7 +91,7 @@ fun getWeekDays(startFromSunday: Boolean): ImmutableList<Int> {
     return (if (startFromSunday) lista.take(7) + lista.drop(1) else lista).toImmutableList()
 }
 
-private fun Int.getDayOfWeek3Letters(): String? {
+private fun Int.getDayOfWeek3Letters(): String {
     return DayOfWeek(
         this@getDayOfWeek3Letters
     ).name.take(3)
