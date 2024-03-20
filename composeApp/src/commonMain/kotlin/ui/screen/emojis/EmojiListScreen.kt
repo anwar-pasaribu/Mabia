@@ -234,6 +234,7 @@ fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
                         emojiListFlowState[item.id].selected = !emojiListFlowState[item.id].selected
                         if (item.selected) {
                             selectedEmojiUnicodes.add(selectedUnicode.trim())
+                            // viewModel.saveSelectedEmojiUnicode(selectedUnicode.trim())
                         } else {
                             selectedEmojiUnicodes.remove(selectedUnicode.trim())
                         }
