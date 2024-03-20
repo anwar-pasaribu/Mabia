@@ -1,6 +1,9 @@
 package ui.viewmodel
 
+import androidx.compose.runtime.mutableStateOf
 import data.EmojiList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.stateholder.SavedStateHolder
@@ -14,6 +17,7 @@ class EmojiListScreenViewModel(
     keyValueStorageRepository: KeyValueStorageRepository,
 ): ViewModel() {
 
+    val greetingText = mutableStateOf(greetingList().random())
     val someSavedValue =
         MutableStateFlow(savedStateHolder.consumeRestored("someValue") as String? ?: "")
 
@@ -25,11 +29,21 @@ class EmojiListScreenViewModel(
             someSavedValue.value
         }
         viewModelScope.launch {
-            emojiListStateFlow.emit(EmojiList.generateEmojiForUI())
+            emojiListStateFlow.emit(EmojiList.generateEmojiForUI().toImmutableList())
         }
     }
 
     fun setOnboardingAlmostFinished() {
         showOnboardingBottomMenu.value = false
     }
+
+    fun greetingList() = persistentListOf(
+        "halo!",
+        "gimana hari ini?",
+        "all good?",
+        "seru ga?",
+        "hi!",
+        "enjoy ga hari ini?",
+        "aman?"
+    )
 }
