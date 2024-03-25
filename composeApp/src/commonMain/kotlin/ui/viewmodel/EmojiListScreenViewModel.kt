@@ -9,12 +9,14 @@ import kotlinx.coroutines.launch
 import moe.tlaster.precompose.stateholder.SavedStateHolder
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
+import repo.ISqlStorageRepository
 import repo.KeyValueStorageRepository
 import ui.screen.emojis.model.EmojiUiModel
 
 class EmojiListScreenViewModel(
     savedStateHolder: SavedStateHolder,
     keyValueStorageRepository: KeyValueStorageRepository,
+    private val sqlStorageRepository: ISqlStorageRepository,
 ): ViewModel() {
 
     val greetingText = mutableStateOf(greetingList().random())
@@ -37,7 +39,13 @@ class EmojiListScreenViewModel(
         showOnboardingBottomMenu.value = false
     }
 
-    fun greetingList() = persistentListOf(
+    fun saveSelectedEmojiUnicode(emojiUnicode: String) {
+        viewModelScope.launch {
+            sqlStorageRepository.saveEmoji(emojiUnicode)
+        }
+    }
+
+    private fun greetingList() = persistentListOf(
         "halo!",
         "gimana hari ini?",
         "all good?",

@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS EmojiEntity (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    emojiString TEXT NOT NULL,
+    date INTEGER NOT NULL
+);
+
+selectEmojiByDate:
+SELECT *
+FROM EmojiEntity
+WHERE date = ?;
+
+selectAllEmoji:
+SELECT *
+FROM EmojiEntity;
+
+insertNewEmoji:
+INSERT INTO EmojiEntity
+(emojiString, date)
+VALUES (?, ?);
+
+deleteEmojiById:
+DELETE FROM EmojiEntity
+WHERE id = ?;
+
+-- INSERT INTO EmojiEntity (id, emojiString, date)
+-- VALUES(1710928372, "\uD83D\uDE0D", 1710928372);

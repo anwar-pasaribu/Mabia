@@ -1,14 +1,14 @@
-package repo
+package data
 
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.set
 
-interface LocalSetting {
+interface ILocalSetting {
     fun saveBoolean(strKey: String, value: Boolean)
     fun getBoolean(strKey: String): Boolean
 }
 
-class LocalSettingStorageImpl: LocalSetting {
+class LocalSettingStorageImpl: ILocalSetting {
 
     private val settings = Settings()
 

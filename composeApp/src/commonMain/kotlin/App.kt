@@ -7,6 +7,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import di.appModule
+import di.databaseModule
+import di.platformModule
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
@@ -24,7 +26,9 @@ import ui.viewmodel.MainViewModel
 @Composable
 @Preview
 fun App() {
-    KoinApplication(application = { modules(appModule()) }) {
+    KoinApplication(
+        application = { modules(platformModule() + appModule() + databaseModule()) }
+    ) {
         PreComposeApp {
             MyAppTheme {
 

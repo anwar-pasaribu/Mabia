@@ -6,5 +6,4 @@ import androidx.compose.runtime.Stable
 data class EmojiUiModel(
     val id: Int,
     val emojiUnicode: String,
-    var selected: Boolean = false
 )
