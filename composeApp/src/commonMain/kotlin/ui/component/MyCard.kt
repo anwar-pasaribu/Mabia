@@ -1,9 +1,11 @@
 package ui.component
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -29,6 +30,8 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -43,6 +46,7 @@ import org.jetbrains.compose.resources.imageResource
 fun HomeCardDisplay(
     modifier: Modifier,
     dismissible: Boolean = false,
+    extraMsg: String = "",
     onDismiss: () -> Unit = {}
 ) {
     Box(
@@ -75,21 +79,43 @@ fun HomeCardDisplay(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(
-                modifier = Modifier.alpha(1f),
-                text = "coba pilih acak 3 emojimu...",
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontSize = 24.sp,
-                    shadow = Shadow(
-                        color = Color.Black.copy(alpha = .25f),
-                        blurRadius = 16f,
-                        offset = Offset(2f, -2f)
+            Column {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = "coba pilih acak 3 emojimu...",
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White,
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontSize = 24.sp,
+                        shadow = Shadow(
+                            color = Color.Black.copy(alpha = .25f),
+                            blurRadius = 16f,
+                            offset = Offset(2f, -2f)
+                        )
+                    ),
+                    lineHeight = TextUnit(30F, TextUnitType.Sp),
+                )
+
+                AnimatedVisibility(extraMsg.isNotEmpty()) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        text = extraMsg,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontSize = 24.sp,
+                            shadow = Shadow(
+                                color = Color.Black.copy(alpha = .25f),
+                                blurRadius = 16f,
+                                offset = Offset(2f, -2f)
+                            )
+                        )
                     )
-                ),
-                lineHeight = TextUnit(30F, TextUnitType.Sp),
-            )
+                }
+            }
+
         }
 
         if (dismissible) {

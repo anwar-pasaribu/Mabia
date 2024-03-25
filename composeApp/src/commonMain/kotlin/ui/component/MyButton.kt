@@ -62,7 +62,7 @@ fun GlassyButton(
             containerColor = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onPrimary
         ),
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
     ) {
         buttonText()
     }
