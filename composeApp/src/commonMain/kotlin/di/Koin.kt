@@ -15,6 +15,7 @@ import repo.KeyValueStorageRepository
 import repo.KeyValueStorageRepositoryImpl
 import repo.SqlStorageRepositoryImpl
 import ui.viewmodel.EmojiListScreenViewModel
+import ui.viewmodel.HistoryScreenViewModel
 import ui.viewmodel.MainViewModel
 
 fun appModule() = module {
@@ -32,6 +33,10 @@ fun appModule() = module {
     }
     single {
         MainViewModel(keyValueStorageRepository = get())
+    }
+
+    single {
+        HistoryScreenViewModel(sqlStorageRepository = get())
     }
 }
 

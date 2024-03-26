@@ -90,7 +90,10 @@ import ui.viewmodel.EmojiListScreenViewModel
     ExperimentalAnimationApi::class
 )
 @Composable
-fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
+fun EmojiListScreen(
+    onScreenStateChanged: (Int) -> Unit = {},
+    openHistoryScreen: () -> Unit = {},
+) {
 
     val hazeState = remember { HazeState() }
     val selectedEmojiUnicodes = remember { mutableStateListOf<String>("") }
@@ -153,7 +156,9 @@ fun EmojiListScreen(onScreenStateChanged: (Int) -> Unit = {}) {
                             items(dayOneToTodayDate) {
                                 Box(
                                     modifier = Modifier
-                                        .bouncingClickable(true) {}
+                                        .bouncingClickable(true) {
+                                            openHistoryScreen()
+                                        }
                                         .clip(CircleShape)
                                         .fillMaxSize()
                                         .background(MaterialTheme.colorScheme.surfaceContainerHighest).aspectRatio(1F),

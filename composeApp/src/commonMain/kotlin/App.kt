@@ -11,12 +11,14 @@ import di.databaseModule
 import di.platformModule
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
+import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import ui.screen.emojis.EmojiListScreen
+import ui.screen.history.HistoryScreen
 import ui.screen.onboarding.Onboarding1
 import ui.screen.onboarding.Onboarding2
 import ui.screen.reward.CongratulateScreen
@@ -48,8 +50,18 @@ fun App() {
                     scene(
                         route = "/home",
                     ) {
-                        EmojiListScreen {
-                            navigator.navigate("/congratulation")
+                        EmojiListScreen(
+                            onScreenStateChanged = {
+                                navigator.navigate("/congratulation")
+                            },
+                            openHistoryScreen = {
+                                navigator.navigate("/history")
+                            }
+                        )
+                    }
+                    scene(route = "/history") {
+                        HistoryScreen() {
+                            navigator.goBack()
                         }
                     }
                     scene(
@@ -70,7 +82,7 @@ fun App() {
                     ) {
                         CongratulateScreen {
                             viewModel.saveFinishedOnboarding()
-                            navigator.navigate("/home")
+                            navigator.goBack()
                         }
                     }
                     scene(route = "/onboarding1") {
@@ -80,7 +92,13 @@ fun App() {
                     }
                     scene(route = "/onboarding2") {
                         Onboarding2 {
-                            navigator.navigate("/home")
+                            navigator.navigate(
+                                "/home",
+                                NavOptions(
+                                    // Launch the scene as single top
+                                    launchSingleTop = true,
+                                ),
+                            )
                         }
                     }
                 }
