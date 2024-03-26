@@ -9,6 +9,11 @@ SELECT *
 FROM EmojiEntity
 WHERE date = ?;
 
+selectEmojiByTimeStampRange:
+SELECT *
+FROM EmojiEntity
+WHERE date BETWEEN :startTimeStamp AND :endTimeStamp;
+
 selectAllEmoji:
 SELECT *
 FROM EmojiEntity;
