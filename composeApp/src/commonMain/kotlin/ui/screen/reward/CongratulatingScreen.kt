@@ -27,7 +27,9 @@ import mabia.composeapp.generated.resources.Res
 import mabia.composeapp.generated.resources.gradient_07
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.imageResource
+import org.koin.compose.koinInject
 import ui.component.GlassyButton
+import ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -35,6 +37,8 @@ fun CongratulateScreen(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit
 ) {
+    val viewModel = koinInject<MainViewModel>()
+
     Box(modifier = Modifier.fillMaxSize()) {
         if (LocalInspectionMode.current) {
             Box(modifier = Modifier
@@ -103,6 +107,7 @@ fun CongratulateScreen(
                 Text(text = "Kembali ke Home", style = MaterialTheme.typography.labelLarge)
             }
         ) {
+            viewModel.saveFinishedOnboarding()
             onDismiss()
         }
     }
