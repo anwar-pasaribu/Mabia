@@ -2,4 +2,5 @@
 <resources>
     <color name="etongPrimary">#FFFFFF</color>
     <color name="etongPrimaryDark">#1c1b1f</color>
+    <color name="eyeColor">#FF001b19</color>
 </resources>
