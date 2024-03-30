@@ -5,6 +5,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import di.appModule
 import di.databaseModule
@@ -12,60 +13,67 @@ import di.platformModule
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.NavOptions
+import moe.tlaster.precompose.navigation.PopUpTo
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
-import org.koin.compose.koinInject
 import ui.screen.emojis.EmojiListScreen
 import ui.screen.history.HistoryScreen
 import ui.screen.onboarding.Onboarding1
 import ui.screen.onboarding.Onboarding2
 import ui.screen.reward.CongratulateScreen
+import ui.screen.splash.Splash
 import ui.theme.MyAppTheme
-import ui.viewmodel.MainViewModel
 
 @Composable
 @Preview
-fun App() {
+fun App(shouldDarkTheme: Boolean = isSystemInDarkTheme()) {
     KoinApplication(
-        application = { modules(platformModule() + appModule() + databaseModule()) }
+        application = {
+            modules(platformModule() + appModule() + databaseModule())
+        }
     ) {
         PreComposeApp {
             MyAppTheme {
 
                 val navigator = rememberNavigator()
-                val viewModel = koinInject<MainViewModel>()
-
-                val initialScreen = if (viewModel.onboardingFinished()) {
-                    "/home"
-                } else {
-                    "/onboarding1"
-                }
 
                 NavHost(
                     navigator = navigator,
-                    initialRoute = initialScreen,
+                    initialRoute = ScreenRoute.SPLASH,
                 ) {
+                    scene(ScreenRoute.SPLASH) {
+                        Splash { screenRoute ->
+                            navigator.navigate(
+                                screenRoute,
+                                NavOptions(
+                                    // Launch the scene as single top
+                                    launchSingleTop = true,
+                                    popUpTo = PopUpTo.First()
+                                )
+                            )
+                        }
+                    }
                     scene(
-                        route = "/home",
+                        route = ScreenRoute.HOME,
                     ) {
                         EmojiListScreen(
                             onScreenStateChanged = {
-                                navigator.navigate("/congratulation")
+                                navigator.navigate(ScreenRoute.CONGRATULATE)
                             },
                             openHistoryScreen = {
-                                navigator.navigate("/history")
+                                navigator.navigate(ScreenRoute.HISTORY)
                             }
                         )
                     }
-                    scene(route = "/history") {
+                    scene(route = ScreenRoute.HISTORY) {
                         HistoryScreen() {
                             navigator.goBack()
                         }
                     }
                     scene(
-                        route = "/congratulation",
+                        route = ScreenRoute.CONGRATULATE,
                         navTransition = NavTransition(
                             createTransition = slideInVertically(initialOffsetY = { it }),
                             destroyTransition = fadeOut() + slideOutVertically(
@@ -81,19 +89,18 @@ fun App() {
                         ),
                     ) {
                         CongratulateScreen {
-                            viewModel.saveFinishedOnboarding()
                             navigator.goBack()
                         }
                     }
-                    scene(route = "/onboarding1") {
+                    scene(route = ScreenRoute.ONBOARDING1) {
                         Onboarding1 {
-                            navigator.navigate("/onboarding2")
+                            navigator.navigate(ScreenRoute.ONBOARDING2)
                         }
                     }
-                    scene(route = "/onboarding2") {
+                    scene(route = ScreenRoute.ONBOARDING2) {
                         Onboarding2 {
                             navigator.navigate(
-                                "/home",
+                                ScreenRoute.HOME,
                                 NavOptions(
                                     // Launch the scene as single top
                                     launchSingleTop = true,
@@ -105,4 +112,13 @@ fun App() {
             }
         }
     }
+}
+
+object ScreenRoute {
+    const val SPLASH = "/splash"
+    const val HOME = "/home"
+    const val HISTORY = "/history"
+    const val ONBOARDING1 = "/onboarding1"
+    const val ONBOARDING2 = "/onboarding2"
+    const val CONGRATULATE = "/congratulation"
 }
