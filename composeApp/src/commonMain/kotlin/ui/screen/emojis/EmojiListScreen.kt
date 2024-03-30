@@ -81,6 +81,7 @@ import org.koin.core.parameter.parametersOf
 import ui.component.GlassyButton
 import ui.component.HomeCardDisplay
 import ui.component.MoodGridItem
+import ui.component.WeekView
 import ui.extension.bouncingClickable
 import ui.extension.delayedAlpha
 import ui.viewmodel.EmojiListScreenViewModel
@@ -109,12 +110,14 @@ fun EmojiListScreen(
 
     Scaffold(
         topBar = {
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth().hazeChild(
+                    state = hazeState,
+                    style = HazeMaterials.regular(MaterialTheme.colorScheme.background)
+                ).background(Color.Transparent)
+            ) {
                 CenterAlignedTopAppBar(
-                    modifier = Modifier.fillMaxWidth().hazeChild(
-                        state = hazeState,
-                        style = HazeMaterials.thin(MaterialTheme.colorScheme.background)
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
                     title = {
                         Text(
@@ -125,88 +128,8 @@ fun EmojiListScreen(
                 )
 
                 if (!showOnboardingBottomMenu) {
-                    Box(
-                        modifier = Modifier.background(Color.Transparent).hazeChild(
-                            state = hazeState,
-                            style = HazeMaterials.thin(MaterialTheme.colorScheme.background)
-                        ),
-                        contentAlignment = Alignment.Center
-                    ) {
-
-                        val today: LocalDate = Clock.System.todayIn(
-                            TimeZone.currentSystemDefault()
-                        )
-                        val todaysDayOfMonth = today.dayOfMonth
-                        val dateViewListState = rememberLazyListState()
-                        val dayOneToTodayDate = (todaysDayOfMonth downTo 1).toImmutableList()
-                        val halfScreenWidth = (getScreenSizeInfo().wDP / 2) - 22.dp
-
-                        LazyRow(
-                            modifier = Modifier.fillMaxWidth().size(56.dp),
-                            state = dateViewListState,
-                            reverseLayout = true,
-                            contentPadding = PaddingValues(
-                                start = 6.dp,
-                                top = 6.dp,
-                                end = halfScreenWidth,
-                                bottom = 6.dp,
-                            ),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            items(dayOneToTodayDate) {
-                                Box(
-                                    modifier = Modifier
-                                        .bouncingClickable(true) {
-                                            openHistoryScreen()
-                                        }
-                                        .clip(CircleShape)
-                                        .fillMaxSize()
-                                        .background(MaterialTheme.colorScheme.surfaceContainerHighest).aspectRatio(1F),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(text = "$it", style = MaterialTheme.typography.bodyLarge)
-                                }
-                            }
-                        }
-
-                        LaunchedEffect(key1 = selectedEmojiUnicode) {
-                            dateViewListState.animateScrollToItem(0)
-                        }
-                        LaunchedEffect(key1 = selectedEmojiUnicode) {
-                            delay(300)
-                            selectedEmojiUnicode = ""
-                        }
-                        AnimatedContent(
-                            targetState = selectedEmojiUnicode,
-                            transitionSpec = {
-                                EnterTransition.None togetherWith ExitTransition.None
-                            }
-                        ) { targetValue ->
-                            Box(
-                                modifier = Modifier
-                                    .size(56.dp)
-                                    .clip(CircleShape)
-                                    .aspectRatio(1F)
-                                    .delayedAlpha(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = targetValue,
-                                    modifier = Modifier.animateEnterExit(
-                                        enter = scaleIn(
-                                            animationSpec = spring(
-                                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                                stiffness = Spring.StiffnessMediumLow
-                                            ),
-                                            initialScale = 2F
-                                        ),
-                                        exit = fadeOut()
-                                    ),
-                                    fontSize = TextUnit(32F, TextUnitType.Sp),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
+                    WeekView(modifier = Modifier.padding(start = 8.dp, end = 8.dp)) {
+                        openHistoryScreen()
                     }
                 }
 
@@ -221,19 +144,20 @@ fun EmojiListScreen(
                         extraMsg = selectedEmojiUnicodes.joinToString(" ").trim()
                     )
                 }
+                Spacer(Modifier.height(8.dp))
             }
         },
     ) { contentPadding ->
-        var showButton by remember { mutableStateOf(false) }
-        LaunchedEffect(showButton) {
-            showButton = true
+
+        var mainEmojiListVisibility by remember { mutableStateOf(false) }
+        LaunchedEffect(mainEmojiListVisibility) {
+            mainEmojiListVisibility = true
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedVisibility(
-                visible = showButton,
+                visible = mainEmojiListVisibility,
                 enter = fadeIn(animationSpec = tween(1000))
-                        + slideInVertically(initialOffsetY = { it })
             ) {
                 LazyVerticalGrid(
                     modifier = Modifier.fillMaxSize().haze(state = hazeState),
