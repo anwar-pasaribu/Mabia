@@ -70,12 +70,13 @@ private fun CalendarCell(
     }
 }
 
-fun getWeekDays(startFromSunday: Boolean): ImmutableList<Int> {
-    val lista = (1..7).toList()
-    return (if (startFromSunday) lista.take(7) + lista.drop(1) else lista).toImmutableList()
+fun getWeekDays(startFromSunday: Boolean = false): ImmutableList<Int> {
+    val aWeek = (1..7).toList()
+    return (if (startFromSunday) aWeek.take(7) + aWeek.drop(1) else aWeek).toImmutableList()
 }
 
-private fun Int.getDayOfWeek3Letters(): String {
+// TODO Local Translation not working for week
+fun Int.getDayOfWeek3Letters(): String {
     return DayOfWeek(
         this@getDayOfWeek3Letters
     ).name.take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
