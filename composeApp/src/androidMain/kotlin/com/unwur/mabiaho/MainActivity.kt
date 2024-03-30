@@ -17,15 +17,15 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,41 +36,69 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import ui.component.GlassyButton
+import ui.component.WeekView
 import ui.theme.MyAppTheme
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.auto(
-                lightScrim = getColor(R.color.etongPrimary),
-                darkScrim = getColor(R.color.etongPrimaryDark)
-            )
-        )
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
-            App()
+            val darkTheme = isSystemInDarkTheme()
+
+            // Update the edge to edge configuration to match the theme
+            DisposableEffect(darkTheme) {
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.auto(
+                        android.graphics.Color.TRANSPARENT,
+                        android.graphics.Color.TRANSPARENT,
+                    ) { darkTheme },
+                    navigationBarStyle = SystemBarStyle.auto(
+                        lightScrim,
+                        darkScrim,
+                    ) { darkTheme },
+                )
+                onDispose {}
+            }
+            App(shouldDarkTheme = darkTheme)
         }
     }
 }
 
-@Preview(showBackground = true)
+
+/**
+ * The default light scrim, as defined by androidx and the platform:
+ * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:activity/activity/src/main/java/androidx/activity/EdgeToEdge.kt;l=35-38;drc=27e7d52e8604a080133e8b842db10c89b4482598
+ */
+private val lightScrim = android.graphics.Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
+
+/**
+ * The default dark scrim, as defined by androidx and the platform:
+ * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:activity/activity/src/main/java/androidx/activity/EdgeToEdge.kt;l=40-44;drc=27e7d52e8604a080133e8b842db10c89b4482598
+ */
+private val darkScrim = android.graphics.Color.argb(0x80, 0x1b, 0x1b, 0x1b)
+
+
+@PreviewLightDark
 @Composable
 fun PreviewPlaceholder() {
     MyAppTheme {
-        Column(modifier = Modifier.fillMaxWidth(), ) {
-            GlassyButton(buttonText = {
-                Text(text = "Preview here ya")
-            }, onClick = {})
-
-            PathEasing()
-        }
+        WeekView() {}
+//        Column(modifier = Modifier.fillMaxWidth(), ) {
+//            GlassyButton(buttonText = {
+//                Text(text = "Preview here ya")
+//            }, onClick = {})
+//
+//            PathEasing()
+//        }
     }
 }
 
@@ -151,5 +179,5 @@ fun PathEasing() {
             .size(100.dp)
             .background(Color.Blue))
     }
-    
+
 }
