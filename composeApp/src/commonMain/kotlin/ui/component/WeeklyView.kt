@@ -20,9 +20,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -74,7 +76,7 @@ fun WeekView(modifier: Modifier = Modifier, onDateClick: () -> Unit) {
                 .padding(start = 2.dp, top = 2.dp, end = 2.dp, bottom = 2.dp),
         ) {
 
-            val days = getWeekDays()
+            val days = listOf(0) + getWeekDays()
             val weekNames = if (!LocalInspectionMode.current) {
                 mutableListOf("") + stringArrayResource(Res.string.weekdays)
             } else {
@@ -87,6 +89,17 @@ fun WeekView(modifier: Modifier = Modifier, onDateClick: () -> Unit) {
                 val todayDayOfMonth = today.dayOfMonth
                 val dayOfMonth = todayDayOfMonth - (todayDayOfWeek - it)
 
+                val upperLabel = if (it == 0) {
+                    today.year.toString()
+                } else {
+                    weekNames.getOrElse(it) { "DDD" }.take(3)
+                }
+                val lowerLabel = if (it == 0) {
+                    today.month.name.take(3)
+                } else {
+                    dayOfMonth.toString()
+                }
+
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -95,18 +108,12 @@ fun WeekView(modifier: Modifier = Modifier, onDateClick: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = weekNames.getOrElse(it) { "DDD" }.take(3),
+                        text = upperLabel,
                         style = MaterialTheme.typography.labelSmall,
                     )
                     Text(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .background(
-                                if (isToday) MaterialTheme.colorScheme.tertiaryContainer else Color.Transparent,
-                                CircleShape
-                            )
-                            .aspectRatio(1F),
-                        text = "$dayOfMonth",
+                        modifier = Modifier.wrapContentWidth(),
+                        text = lowerLabel,
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = FontWeight.Bold,
                             lineHeightStyle = LineHeightStyle(
@@ -116,10 +123,30 @@ fun WeekView(modifier: Modifier = Modifier, onDateClick: () -> Unit) {
                         ),
                         textAlign = TextAlign.Center
                     )
+                    if (isToday) {
+                        Box(
+                            modifier = Modifier.background(
+                                MaterialTheme.colorScheme.onPrimary,
+                                RoundedCornerShape(1.5.dp)
+                            ).width(16.dp).height(3.dp),
+                        )
+                    }
                 }
 
                 if (it != days.last()) {
                     Spacer(modifier = Modifier.width(8.dp))
+                }
+
+                if (it == days.first()) {
+                    Box(
+                        modifier = Modifier.width(1.dp).height(32.dp)
+                            .background(
+                                MaterialTheme.colorScheme.surfaceContainerHighest,
+                                RoundedCornerShape(.5.dp)
+                            )
+                            .align(Alignment.CenterVertically)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
                 }
             }
         }
