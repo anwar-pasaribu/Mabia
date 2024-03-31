@@ -23,7 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -35,7 +39,7 @@ fun MoodGridItem(
     modifier: Modifier = Modifier,
     content: String,
     selected: Boolean = false,
-    onSelect: (String) -> Unit
+    onSelect: (String, Offset) -> Unit
 ) {
 
     var isSelected by remember { mutableStateOf(selected) }
@@ -53,7 +57,11 @@ fun MoodGridItem(
 
     val sizeAnimation by animationTransition.animateSize(
         targetValueByState = { pressed ->
-            if (pressed) { Size(1.45F, 1.45F) } else { Size(1F, 1F) }
+            if (pressed) {
+                Size(1.45F, 1.45F)
+            } else {
+                Size(1F, 1F)
+            }
         },
         label = "SizeTransition",
         transitionSpec = {
@@ -70,17 +78,24 @@ fun MoodGridItem(
     }
 
     val alphaAnimVal by animationTransition.animateFloat(
-        targetValueByState = { pressed -> if (pressed) { 0F } else { 1F } },
+        targetValueByState = { pressed ->
+            if (pressed) {
+                0F
+            } else {
+                1F
+            }
+        },
         label = "AlphaTransition",
     )
+    var emojiCenterOffset by remember { mutableStateOf(Offset.Zero) }
 
     Box(
         modifier = modifier.then(
             Modifier.fillMaxSize()
                 .scale(sizeAnimation.width, sizeAnimation.height)
-                .bouncingClickable {
+                .bouncingClickable(enabled = !isSelected) {
                     isSelected = !isSelected
-                    onSelect(content)
+                    onSelect(content, emojiCenterOffset)
                 }
                 .clip(RoundedCornerShape(roundedCornerAnimationVal))
                 .aspectRatio(1F)
@@ -97,6 +112,11 @@ fun MoodGridItem(
             contentAlignment = Alignment.Center
         ) {
             Text(
+                modifier = Modifier.onGloballyPositioned {
+                    emojiCenterOffset = it.boundsInRoot().topLeft
+                }.graphicsLayer {
+                    alpha = alphaAnimVal
+                },
                 text = content,
                 fontSize = TextUnit(64F, TextUnitType.Sp)
             )

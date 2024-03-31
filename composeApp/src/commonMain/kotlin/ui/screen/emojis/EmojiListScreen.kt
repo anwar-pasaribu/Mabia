@@ -1,19 +1,13 @@
 package ui.screen.emojis
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,24 +15,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -55,40 +43,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
-import getScreenSizeInfo
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.delay
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.todayIn
+import kotlinx.coroutines.flow.MutableStateFlow
 import moe.tlaster.precompose.stateholder.LocalSavedStateHolder
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
+import ui.component.EmojiFlyingUpCanvas
 import ui.component.GlassyButton
 import ui.component.HomeCardDisplay
 import ui.component.MoodGridItem
 import ui.component.WeekView
-import ui.extension.bouncingClickable
-import ui.extension.delayedAlpha
 import ui.viewmodel.EmojiListScreenViewModel
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class,
-    ExperimentalAnimationApi::class
+    ExperimentalAnimationApi::class, ExperimentalFoundationApi::class
 )
 @Composable
 fun EmojiListScreen(
@@ -97,8 +75,9 @@ fun EmojiListScreen(
 ) {
 
     val hazeState = remember { HazeState() }
-    val selectedEmojiUnicodes = remember { mutableStateListOf<String>("") }
+    val selectedEmojiUnicodes = remember { mutableStateListOf("") }
     var selectedEmojiUnicode by remember { mutableStateOf("") }
+    var selectedEmojiOffset by remember { mutableStateOf(Offset.Zero) }
     val lazyListState = rememberLazyGridState()
 
     val stateHolder = LocalSavedStateHolder.current
@@ -107,6 +86,9 @@ fun EmojiListScreen(
     }
     val emojiListFlowState by viewModel.emojiListStateFlow.collectAsState()
     val showOnboardingBottomMenu by viewModel.showOnboardingBottomMenu.collectAsState()
+
+    var selectedEmojiUnicodeAndOffset = remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
+    var showParticles by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -174,11 +156,19 @@ fun EmojiListScreen(
                 ) {
                     items(items = emojiListFlowState, key = { it.id }) { item ->
                         MoodGridItem(
+                            modifier = Modifier.animateItemPlacement(
+                                tween(durationMillis = 1000)
+                            ),
                             content = item.emojiUnicode.trim(),
-                        ) { selectedUnicode ->
+                        ) { selectedUnicode, offset ->
                             selectedEmojiUnicodes.add(selectedUnicode)
                             selectedEmojiUnicode = selectedUnicode
                             viewModel.saveSelectedEmojiUnicode(selectedUnicode)
+
+                            showParticles = !showParticles
+                            selectedEmojiOffset = offset
+
+                            selectedEmojiUnicodeAndOffset.value.value = Pair(selectedUnicode, offset)
                         }
                     }
 
@@ -187,6 +177,8 @@ fun EmojiListScreen(
                     }
                 }
             }
+
+            EmojiFlyingUpCanvas(selectedEmojiUnicodeAndOffset.value)
 
             AnimatedVisibility(
                 modifier = Modifier.align(Alignment.BottomCenter),
