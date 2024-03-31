@@ -243,7 +243,7 @@ fun EmojiBottomSheet(
                 items(items = emojiHistoryList, key = { it.id }) { item ->
                     MoodGridItem(
                         content = item.emojiUnicode.trim(),
-                    ) { selectedUnicode ->
+                    ) { selectedUnicode, offset ->
 
                     }
                 }
