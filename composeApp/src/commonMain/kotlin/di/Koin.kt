@@ -7,6 +7,8 @@ import data.ILocalSetting
 import data.ISqlDelightDataSource
 import data.LocalSettingStorageImpl
 import data.SqlDelightDataSourceImpl
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -14,9 +16,17 @@ import repo.ISqlStorageRepository
 import repo.KeyValueStorageRepository
 import repo.KeyValueStorageRepositoryImpl
 import repo.SqlStorageRepositoryImpl
+import service.GenerativeAiService
 import ui.viewmodel.EmojiListScreenViewModel
 import ui.viewmodel.HistoryScreenViewModel
 import ui.viewmodel.MainViewModel
+
+fun letsKoinStart() {
+    stopKoin()
+    startKoin {
+        modules(platformModule() + appModule() + databaseModule())
+    }
+}
 
 fun appModule() = module {
 
@@ -36,7 +46,11 @@ fun appModule() = module {
     }
 
     single {
-        HistoryScreenViewModel(sqlStorageRepository = get())
+        GenerativeAiService.instance
+    }
+
+    single {
+        HistoryScreenViewModel(sqlStorageRepository = get(), aiService = get())
     }
 }
 

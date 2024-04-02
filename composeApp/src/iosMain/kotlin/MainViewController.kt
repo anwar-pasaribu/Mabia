@@ -1,3 +1,5 @@
+@file:Suppress("unused", "FunctionName")
+
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.ui.window.ComposeUIViewController
 

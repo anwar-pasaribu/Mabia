@@ -3,9 +3,12 @@ package service
 import com.unwur.mabiaho.BuildKonfig
 import dev.shreyaspatil.ai.client.generativeai.Chat
 import dev.shreyaspatil.ai.client.generativeai.GenerativeModel
+import dev.shreyaspatil.ai.client.generativeai.type.BlockThreshold
 import dev.shreyaspatil.ai.client.generativeai.type.Content
 import dev.shreyaspatil.ai.client.generativeai.type.GenerateContentResponse
+import dev.shreyaspatil.ai.client.generativeai.type.HarmCategory
 import dev.shreyaspatil.ai.client.generativeai.type.PlatformImage
+import dev.shreyaspatil.ai.client.generativeai.type.SafetySetting
 import dev.shreyaspatil.ai.client.generativeai.type.content
 import kotlinx.coroutines.flow.Flow
 
@@ -44,15 +47,24 @@ class GenerativeAiService private constructor(
         @Suppress("ktlint:standard:property-naming")
         private var GEMINI_API_KEY = BuildKonfig.GEMINI_API_KEY
 
+        private val safetySettings = listOf(
+            SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),
+            SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE),
+            SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.NONE),
+            SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE),
+        )
+
         val instance: GenerativeAiService by lazy {
             GenerativeAiService(
                 textModel = GenerativeModel(
                     modelName = "gemini-pro",
                     apiKey = GEMINI_API_KEY,
+                    safetySettings = safetySettings,
                 ),
                 visionModel = GenerativeModel(
                     modelName = "gemini-pro-vision",
                     apiKey = GEMINI_API_KEY,
+                    safetySettings = safetySettings,
                 ),
             )
         }

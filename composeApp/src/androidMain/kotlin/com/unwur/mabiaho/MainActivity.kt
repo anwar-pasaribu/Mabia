@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import ui.component.WeekView
+import ui.screen.history.MoodBottomSheetContent
 import ui.theme.MyAppTheme
 import kotlin.math.roundToInt
 
@@ -91,7 +91,7 @@ private val darkScrim = android.graphics.Color.argb(0x80, 0x1b, 0x1b, 0x1b)
 @Composable
 fun PreviewPlaceholder() {
     MyAppTheme {
-        WeekView() {}
+        MoodBottomSheetContent(formattedSelectedDate = "Senin, 21 April 2024", moodRate = 2)
 //        Column(modifier = Modifier.fillMaxWidth(), ) {
 //            GlassyButton(buttonText = {
 //                Text(text = "Preview here ya")
