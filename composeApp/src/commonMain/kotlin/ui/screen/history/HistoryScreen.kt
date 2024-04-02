@@ -1,5 +1,6 @@
 package ui.screen.history
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -34,28 +36,33 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import data.EmojiList
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -69,22 +76,32 @@ import kotlinx.datetime.todayIn
 import kotlinx.datetime.until
 import org.koin.compose.koinInject
 import ui.component.CalendarView
+import ui.component.ChatBubbleItem
 import ui.component.MoodGridItem
+import ui.component.MoodRateView
+import ui.screen.ai.ChatUiState
+import ui.screen.ai.MutableChatUiState
+import ui.screen.ai.model.ChatMessage
 import ui.screen.emojis.model.EmojiUiModel
 import ui.viewmodel.HistoryScreenViewModel
 import androidx.compose.foundation.lazy.items as lazyColumnItems
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class,
+    ExperimentalComposeUiApi::class
+)
 @Composable
 fun HistoryScreen(onBack: () -> Unit = {}) {
 
     val viewModel = koinInject<HistoryScreenViewModel>()
     val emojiHistoryList by viewModel.emojiListStateFlow.collectAsState()
+    val moodRate by viewModel.moodRate.collectAsState()
+    val geminiUiState = viewModel.uiState
 
     val hazeState = remember { HazeState() }
     var formattedSelectedDate by remember { mutableStateOf("") }
-    val lazyListState = rememberLazyGridState()
+    val emojiGridListState = rememberLazyGridState()
     val lazyColumnListState = rememberLazyListState()
+    val listState = rememberLazyListState()
 
     var showSheet by remember { mutableStateOf(false) }
 
@@ -93,9 +110,12 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
             onDismiss = {
                 showSheet = false
             },
-            lazyListState = lazyListState,
+            emojiGridListState = emojiGridListState,
             formattedSelectedDate = formattedSelectedDate,
-            emojiHistoryList = emojiHistoryList.toImmutableList()
+            emojiHistoryList = emojiHistoryList.toImmutableList(),
+            moodRate = moodRate,
+            geminiUiState = geminiUiState,
+            listState = listState
         )
     }
 
@@ -126,7 +146,7 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
                     title = {
                         Text(
                             "History",
-                            style = MaterialTheme.typography.headlineLarge
+                            style = MaterialTheme.typography.titleLarge
                         )
                     }
                 )
@@ -163,7 +183,6 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
                 end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
                 bottom = contentPadding.calculateBottomPadding()
             ),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
             lazyColumnItems(items = localDateListThisYear) { dateItem ->
@@ -181,10 +200,13 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
                             dateTime.toInstant(tz).toEpochMilliseconds()
                         )
 
-                        val shortDayName = dateTime.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercaseChar() }
-                        val monthName = dateTime.month.name.lowercase().replaceFirstChar { it.uppercaseChar() }
+                        val shortDayName = dateTime.dayOfWeek.name.lowercase()
+                            .replaceFirstChar { it.uppercaseChar() }
+                        val monthName =
+                            dateTime.month.name.lowercase()
+                                .replaceFirstChar { it.uppercaseChar() }
                         formattedSelectedDate = shortDayName + ", " +
-                            dateTime.dayOfMonth.toString() + " " + monthName + " " +
+                                dateTime.dayOfMonth.toString() + " " + monthName + " " +
                                 dateTime.year
                     },
                 )
@@ -200,13 +222,16 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmojiBottomSheet(
-    onDismiss: () -> Unit,
-    lazyListState: LazyGridState,
-    formattedSelectedDate: String,
-    emojiHistoryList: ImmutableList<EmojiUiModel>
+    onDismiss: () -> Unit = {},
+    emojiGridListState: LazyGridState = rememberLazyGridState(),
+    formattedSelectedDate: String = "Date",
+    emojiHistoryList: ImmutableList<EmojiUiModel> = persistentListOf(),
+    moodRate: Int = EmojiList.MOOD_UNKNOWN,
+    geminiUiState: ChatUiState = MutableChatUiState(),
+    listState: LazyListState = rememberLazyListState(),
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+        skipPartiallyExpanded = false
     )
 
     val noInset = BottomSheetDefaults.windowInsets
@@ -218,40 +243,125 @@ fun EmojiBottomSheet(
         sheetState = modalBottomSheetState,
         windowInsets = noInset,
     ) {
+        MoodBottomSheetContent(
+            emojiGridListState = emojiGridListState,
+            formattedSelectedDate = formattedSelectedDate,
+            emojiHistoryList = emojiHistoryList,
+            moodRate = moodRate,
+            geminiUiState = geminiUiState,
+            listState = listState
+        )
+    }
+}
+
+@Composable
+fun MoodBottomSheetContent(
+    emojiGridListState: LazyGridState = rememberLazyGridState(),
+    formattedSelectedDate: String = "Date",
+    emojiHistoryList: ImmutableList<EmojiUiModel> = persistentListOf(),
+    moodRate: Int = EmojiList.MOOD_UNKNOWN,
+    geminiUiState: ChatUiState = MutableChatUiState(),
+    listState: LazyListState = rememberLazyListState(),
+) {
+    Surface {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = formattedSelectedDate,
-                style = MaterialTheme.typography.headlineLarge
+            MoodRateView(
+                modifier = Modifier.fillMaxWidth(),
+                moodRate = moodRate,
+                loadingState = !geminiUiState.canSendMessage
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            LazyVerticalGrid(
-                modifier = Modifier.fillMaxSize(),
-                state = lazyListState,
-                columns = GridCells.Adaptive(72.dp),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(items = emojiHistoryList, key = { it.id }) { item ->
-                    MoodGridItem(
-                        content = item.emojiUnicode.trim(),
-                    ) { selectedUnicode, offset ->
-
-                    }
-                }
-
-                item {
-                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
+            val moodLabel = EmojiList.moodPleasantness[moodRate].orEmpty()
+            AnimatedContent(
+                targetState = moodLabel,
+                label = "AnimatedMoodSummaryBottomSheet"
+            ) {targetVal ->
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = targetVal,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = formattedSelectedDate,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            EmojiListByDate(
+                lazyListState = emojiGridListState,
+                formattedSelectedDate = formattedSelectedDate,
+                emojiHistoryList = emojiHistoryList
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ChatList(chatMessages = geminiUiState.messages, listState = listState)
         }
+    }
+}
+
+@Composable
+fun EmojiListByDate(
+    lazyListState: LazyGridState,
+    formattedSelectedDate: String,
+    emojiHistoryList: ImmutableList<EmojiUiModel>,
+) {
+
+    LazyVerticalGrid(
+        modifier = Modifier.fillMaxSize(),
+        state = lazyListState,
+        columns = GridCells.Adaptive(72.dp),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(items = emojiHistoryList, key = { it.id }) { item ->
+            MoodGridItem(
+                content = item.emojiUnicode.trim(),
+            ) { selectedUnicode, offset ->
+
+            }
+        }
+
+        item {
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
+        }
+    }
+}
+
+@Composable
+fun ChatList(
+    chatMessages: List<ChatMessage>,
+    listState: LazyListState,
+) {
+    val messages by remember {
+        derivedStateOf { chatMessages.reversed() }
+    }
+    LazyColumn(
+        state = listState,
+        reverseLayout = true,
+    ) {
+        lazyColumnItems(
+            items = messages,
+            key = { it.id },
+        ) { message ->
+            ChatBubbleItem(message)
+        }
+        item {
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
+        }
+    }
+
+    LaunchedEffect(true) {
+        listState.scrollToItem(0)
     }
 }

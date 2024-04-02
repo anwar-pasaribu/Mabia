@@ -2,7 +2,6 @@ package ui.screen.emojis
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -34,7 +33,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -103,7 +101,7 @@ fun EmojiListScreen(
                     colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
                     title = {
                         Text(
-                            viewModel.greetingText.value,
+                            viewModel.getGreeting(),
                             style = MaterialTheme.typography.headlineLarge
                         )
                     }
@@ -131,50 +129,37 @@ fun EmojiListScreen(
         },
     ) { contentPadding ->
 
-        var mainEmojiListVisibility by remember { mutableStateOf(false) }
-        LaunchedEffect(mainEmojiListVisibility) {
-            mainEmojiListVisibility = true
-        }
-
         Box(modifier = Modifier.fillMaxSize()) {
-            AnimatedVisibility(
-                visible = mainEmojiListVisibility,
-                enter = fadeIn(animationSpec = tween(1000))
+            LazyVerticalGrid(
+                modifier = Modifier.fillMaxSize().haze(state = hazeState),
+                state = lazyListState,
+                columns = GridCells.Adaptive(100.dp),
+                contentPadding = PaddingValues(
+                    start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
+                    top = contentPadding.calculateTopPadding() + 16.dp,
+                    end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
+                    bottom = contentPadding.calculateBottomPadding()
+                ),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                LazyVerticalGrid(
-                    modifier = Modifier.fillMaxSize().haze(state = hazeState),
-                    state = lazyListState,
-                    columns = GridCells.Adaptive(128.dp),
-                    contentPadding = PaddingValues(
-                        start = contentPadding.calculateStartPadding(LayoutDirection.Ltr) + 8.dp,
-                        top = contentPadding.calculateTopPadding() + 16.dp,
-                        end = contentPadding.calculateEndPadding(LayoutDirection.Ltr) + 8.dp,
-                        bottom = contentPadding.calculateBottomPadding()
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(items = emojiListFlowState, key = { it.id }) { item ->
-                        MoodGridItem(
-                            modifier = Modifier.animateItemPlacement(
-                                tween(durationMillis = 1000)
-                            ),
-                            content = item.emojiUnicode.trim(),
-                        ) { selectedUnicode, offset ->
-                            selectedEmojiUnicodes.add(selectedUnicode)
-                            selectedEmojiUnicode = selectedUnicode
-                            viewModel.saveSelectedEmojiUnicode(selectedUnicode)
+                items(items = emojiListFlowState, key = { it.id }) { item ->
+                    MoodGridItem(
+                        content = item.emojiUnicode.trim(),
+                    ) { selectedUnicode, offset ->
+                        selectedEmojiUnicodes.add(selectedUnicode)
+                        selectedEmojiUnicode = selectedUnicode
+                        viewModel.saveSelectedEmojiUnicode(selectedUnicode)
 
-                            showParticles = !showParticles
-                            selectedEmojiOffset = offset
+                        showParticles = !showParticles
+                        selectedEmojiOffset = offset
 
-                            selectedEmojiUnicodeAndOffset.value.value = Pair(selectedUnicode, offset)
-                        }
+                        selectedEmojiUnicodeAndOffset.value.value = Pair(selectedUnicode, offset)
                     }
+                }
 
-                    item {
-                        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
-                    }
+                item {
+                    Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
                 }
             }
 

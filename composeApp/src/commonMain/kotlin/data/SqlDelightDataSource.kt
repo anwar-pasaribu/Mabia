@@ -17,8 +17,11 @@ class SqlDelightDataSourceImpl(
 ) : ISqlDelightDataSource {
 
     override suspend fun insertEmoji(emojiUnicode: String) {
-        val currentTimestamp = Clock.System.now().toEpochMilliseconds()
-        userEmojiDao.insertEmoji(emojiUnicode, currentTimestamp)
+//        val currentTimestamp = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+//        val yesterday = currentTimestamp.toInstant(TimeZone.currentSystemDefault()).minus(Duration.parse("1d"))
+//
+//        userEmojiDao.insertEmoji(emojiUnicode, yesterday.toEpochMilliseconds())
+        userEmojiDao.insertEmoji(emojiUnicode, Clock.System.now().toEpochMilliseconds())
     }
 
     override suspend fun getEmojiHistory(date: Long): Flow<List<EmojiModel>> {

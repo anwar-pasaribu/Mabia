@@ -1,5 +1,8 @@
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -7,9 +10,6 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import di.appModule
-import di.databaseModule
-import di.platformModule
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.NavOptions
@@ -17,7 +17,7 @@ import moe.tlaster.precompose.navigation.PopUpTo
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.koin.compose.KoinApplication
+import org.koin.compose.KoinContext
 import ui.screen.emojis.EmojiListScreen
 import ui.screen.history.HistoryScreen
 import ui.screen.onboarding.Onboarding1
@@ -29,21 +29,34 @@ import ui.theme.MyAppTheme
 @Composable
 @Preview
 fun App(shouldDarkTheme: Boolean = isSystemInDarkTheme()) {
-    KoinApplication(
-        application = {
-            modules(platformModule() + appModule() + databaseModule())
-        }
-    ) {
-        PreComposeApp {
+//    KoinApplication(
+//        application = {
+//            modules(platformModule() + appModule() + databaseModule())
+//        }
+//    ) {
+    PreComposeApp {
+        KoinContext {
             MyAppTheme {
-
                 val navigator = rememberNavigator()
-
                 NavHost(
                     navigator = navigator,
                     initialRoute = ScreenRoute.SPLASH,
+                    navTransition = NavTransition(
+                        createTransition = fadeIn(),
+                        destroyTransition = fadeOut(),
+                        pauseTransition = fadeOut(),
+                        resumeTransition = fadeIn(),
+                        exitTargetContentZIndex = 1f,
+                    )
                 ) {
-                    scene(ScreenRoute.SPLASH) {
+                    scene(
+                        ScreenRoute.SPLASH, navTransition = NavTransition(
+                            createTransition = EnterTransition.None,
+                            destroyTransition = ExitTransition.None,
+                            pauseTransition = ExitTransition.None,
+                            resumeTransition = EnterTransition.None,
+                        )
+                    ) {
                         Splash { screenRoute ->
                             navigator.navigate(
                                 screenRoute,
@@ -94,7 +107,13 @@ fun App(shouldDarkTheme: Boolean = isSystemInDarkTheme()) {
                     }
                     scene(route = ScreenRoute.ONBOARDING1) {
                         Onboarding1 {
-                            navigator.navigate(ScreenRoute.ONBOARDING2)
+                            navigator.navigate(
+                                ScreenRoute.ONBOARDING2,
+                                NavOptions(
+                                    launchSingleTop = true,
+                                    popUpTo = PopUpTo.First()
+                                )
+                            )
                         }
                     }
                     scene(route = ScreenRoute.ONBOARDING2) {
@@ -102,9 +121,9 @@ fun App(shouldDarkTheme: Boolean = isSystemInDarkTheme()) {
                             navigator.navigate(
                                 ScreenRoute.HOME,
                                 NavOptions(
-                                    // Launch the scene as single top
                                     launchSingleTop = true,
-                                ),
+                                    popUpTo = PopUpTo.First()
+                                )
                             )
                         }
                     }
@@ -112,6 +131,7 @@ fun App(shouldDarkTheme: Boolean = isSystemInDarkTheme()) {
             }
         }
     }
+//    }
 }
 
 object ScreenRoute {
