@@ -38,3 +38,7 @@ actual fun getScreenSizeInfo(): ScreenSizeInfo {
         )
     }
 }
+
+@Composable
+actual fun PlayHapticAndSound(trigger: Any) {
+}
