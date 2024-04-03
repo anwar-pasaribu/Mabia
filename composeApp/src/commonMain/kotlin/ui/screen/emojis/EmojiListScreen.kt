@@ -1,5 +1,6 @@
 package ui.screen.emojis
 
+import PlayHapticAndSound
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
@@ -87,6 +88,10 @@ fun EmojiListScreen(
 
     var selectedEmojiUnicodeAndOffset = remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
     var showParticles by remember { mutableStateOf(false) }
+
+    if (selectedEmojiUnicode.isNotEmpty()) {
+        PlayHapticAndSound(selectedEmojiUnicode)
+    }
 
     Scaffold(
         topBar = {
