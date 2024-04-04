@@ -1,15 +1,14 @@
 package ui.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,14 +32,14 @@ import ui.extension.bouncingClickable
 
 @Composable
 private fun CalendarCell(
-    date: LocalDate,
+    cellText: String,
     signal: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val text = date.dayOfMonth.toString()
     Box(
         modifier = modifier
+            .bouncingClickable { onClick() }
             .aspectRatio(1f)
             .fillMaxSize()
             .padding(2.dp)
@@ -49,7 +48,6 @@ private fun CalendarCell(
                 color = MaterialTheme.colorScheme.surfaceContainerHighest,
             )
             .clip(CircleShape)
-            .clickable(onClick = onClick)
     ) {
         if (signal) {
             Box(
@@ -63,7 +61,7 @@ private fun CalendarCell(
             )
         }
         Text(
-            text = text,
+            text = cellText,
             color = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.align(Alignment.Center)
         )
@@ -123,25 +121,19 @@ private fun CalendarGrid(
         }
 
         for (day in 1..if (startFromSunday) dayOfMonth else dayOfMonth - 1) {
-            Box(
-                modifier = Modifier
-                    .bouncingClickable {
-                        onClick(LocalDate(year = year, monthNumber = monthNumber, dayOfMonth = day))
-                    }
-                    .padding(2.dp)
-                    .background(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest
+            CalendarCell(
+                cellText = day.toString(),
+                onClick = {
+                    onClick(
+                        LocalDate(year = year, monthNumber = monthNumber, dayOfMonth = day)
                     )
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "$day")
-            }
+                }
+            )
         }
+
         date.forEach {
             CalendarCell(
-                date = it.first,
+                cellText = it.first.dayOfMonth.toString(),
                 signal = it.second,
                 onClick = { onClick(it.first) }
             )
@@ -173,24 +165,38 @@ private fun CalendarCustomLayout(
         val yPos: MutableList<Int> = mutableListOf()
         var currentX = 0
         var currentY = 0
-        measurables.forEach { _ ->
+        var isFirstRow = true // Flag to indicate whether it's the first row
+        measurables.forEachIndexed { index, _ ->
             xPos.add(currentX)
             yPos.add(currentY)
+
+            // Adjust height for the first row
+            val cellHeight = if (isFirstRow) singleWidth / 2 else singleWidth
+
             if (currentX + singleWidth + horizontalGap > totalWidthWithoutGap) {
                 currentX = 0
-                currentY += singleWidth + verticalGap
+                currentY += cellHeight + verticalGap
+                isFirstRow = false // After the first row, set the flag to false
             } else {
                 currentX += singleWidth + horizontalGap
             }
         }
 
-        val placeables: List<Placeable> = measurables.map { measurable ->
-            measurable.measure(constraints.copy(maxHeight = singleWidth, maxWidth = singleWidth))
+        val placeables: List<Placeable> = measurables.mapIndexed { index, measurable ->
+            measurable.measure(
+                constraints.copy(
+                    maxHeight = if (index <= 6) singleWidth / 2 else singleWidth,
+                    maxWidth = singleWidth
+                )
+            )
         }
 
+        val calendarLayoutHeight =
+            if (placeables.size != 42) currentY + singleWidth + verticalGap
+            else currentY + verticalGap
         layout(
             width = constraints.maxWidth,
-            height = currentY + singleWidth + verticalGap,
+            height = calendarLayoutHeight,
         ) {
             placeables.forEachIndexed { index, placeable ->
                 placeable.placeRelative(
@@ -201,6 +207,8 @@ private fun CalendarCustomLayout(
         }
     }
 }
+
+
 
 @Composable
 fun CalendarView(
@@ -214,9 +222,9 @@ fun CalendarView(
     startFromSunday: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier) {
+    Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(16.dp))
-        Box(modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter)) {
+        Box(modifier = Modifier.fillMaxWidth()) {
             val monthYearLabel =
                 month.month.name.lowercase().replaceFirstChar { it.uppercaseChar() } +
                         " " + month.year
@@ -224,17 +232,15 @@ fun CalendarView(
                 text = monthYearLabel,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.align(Alignment.Center).padding(start = 16.dp),
+                modifier = Modifier.align(Alignment.Center),
             )
         }
         if (!date.isNullOrEmpty()) {
             CalendarGrid(
+                modifier = Modifier.padding(horizontal = 16.dp),
                 date = date,
                 onClick = onClick,
                 startFromSunday = startFromSunday,
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .padding(horizontal = 16.dp)
             )
         }
     }

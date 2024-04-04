@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.exclude
@@ -184,11 +185,14 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
                 start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
                 top = contentPadding.calculateTopPadding() + 16.dp,
                 end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
-                bottom = contentPadding.calculateBottomPadding()
+                bottom = contentPadding.calculateBottomPadding() + WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
             ),
         ) {
 
-            lazyColumnItems(items = localDateListThisYear) { dateItem ->
+            lazyColumnItems(
+                items = localDateListThisYear,
+                key = { it.dayOfYear }
+            ) { dateItem ->
                 CalendarView(
                     month = dateItem,
                     date = listOf(
@@ -213,10 +217,6 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
                                 dateTime.year
                     },
                 )
-            }
-
-            item {
-                Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
             }
         }
     }
