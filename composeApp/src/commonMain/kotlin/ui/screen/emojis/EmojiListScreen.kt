@@ -1,12 +1,10 @@
 package ui.screen.emojis
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,8 +61,7 @@ import ui.component.WeekView
 import ui.viewmodel.EmojiListScreenViewModel
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class,
-    ExperimentalAnimationApi::class, ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
 )
 @Composable
 fun EmojiListScreen(
@@ -82,11 +79,11 @@ fun EmojiListScreen(
     val viewModel = koinInject<EmojiListScreenViewModel> {
         parametersOf(stateHolder)
     }
+    val greetingText by remember { mutableStateOf(viewModel.getGreeting()) }
     val emojiListFlowState by viewModel.emojiListStateFlow.collectAsState()
     val showOnboardingBottomMenu by viewModel.showOnboardingBottomMenu.collectAsState()
 
-    var selectedEmojiUnicodeAndOffset = remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
-    var showParticles by remember { mutableStateOf(false) }
+    val selectedEmojiUnicodeAndOffset = remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
 
     Scaffold(
         topBar = {
@@ -101,7 +98,7 @@ fun EmojiListScreen(
                     colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
                     title = {
                         Text(
-                            viewModel.getGreeting(),
+                            greetingText,
                             style = MaterialTheme.typography.headlineLarge
                         )
                     }
@@ -151,7 +148,6 @@ fun EmojiListScreen(
                         selectedEmojiUnicode = selectedUnicode
                         viewModel.saveSelectedEmojiUnicode(selectedUnicode)
 
-                        showParticles = !showParticles
                         selectedEmojiOffset = offset
 
                         selectedEmojiUnicodeAndOffset.value.value = Pair(selectedUnicode, offset)
