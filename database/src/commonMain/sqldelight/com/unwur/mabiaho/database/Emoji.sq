@@ -1,31 +1,32 @@
-CREATE TABLE IF NOT EXISTS EmojiEntity (
+CREATE TABLE IF NOT EXISTS MoodEntity (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     emojiString TEXT NOT NULL,
-    date INTEGER NOT NULL
+    date INTEGER NOT NULL,
+    notes TEXT,
+    voiceNote BLOB,
+    latitude REAL,
+    longitude REAL
 );
 
 selectEmojiByDate:
 SELECT *
-FROM EmojiEntity
+FROM MoodEntity
 WHERE date = ?;
 
 selectEmojiByTimeStampRange:
 SELECT *
-FROM EmojiEntity
+FROM MoodEntity
 WHERE date BETWEEN :startTimeStamp AND :endTimeStamp;
 
 selectAllEmoji:
 SELECT *
-FROM EmojiEntity;
+FROM MoodEntity;
 
 insertNewEmoji:
-INSERT INTO EmojiEntity
+INSERT INTO MoodEntity
 (emojiString, date)
 VALUES (?, ?);
 
 deleteEmojiById:
-DELETE FROM EmojiEntity
+DELETE FROM MoodEntity
 WHERE id = ?;
-
--- INSERT INTO EmojiEntity (id, emojiString, date)
--- VALUES(1710928372, "\uD83D\uDE0D", 1710928372);
