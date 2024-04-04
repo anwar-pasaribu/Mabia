@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -68,7 +69,6 @@ fun WeekView(modifier: Modifier = Modifier, onDateClick: () -> Unit) {
     Surface(
         modifier = modifier,
         color = Color.Transparent,
-        shape = RoundedCornerShape(10.dp)
     ) {
         Row(
             modifier = Modifier
@@ -86,6 +86,7 @@ fun WeekView(modifier: Modifier = Modifier, onDateClick: () -> Unit) {
             days.forEach {
                 val isToday = it == today.dayOfWeek.isoDayNumber
                 val todayDayOfWeek = today.dayOfWeek.isoDayNumber
+                val isFuture = it > todayDayOfWeek
                 val todayDayOfMonth = today.dayOfMonth
                 val dayOfMonth = todayDayOfMonth - (todayDayOfWeek - it)
 
@@ -104,7 +105,8 @@ fun WeekView(modifier: Modifier = Modifier, onDateClick: () -> Unit) {
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(8.dp))
-                        .clickable { onDateClick() },
+                        .alpha(if (isFuture) .4F else 1F)
+                        .clickable (enabled = !isFuture) { onDateClick() },
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
