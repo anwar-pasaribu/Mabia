@@ -9,7 +9,7 @@ class MyApp: Application() {
     override fun onCreate() {
         super.onCreate()
         // TODO THIS NOT SUPPOSED TO BE HERE
-        DriverFactory.appContext = this
+        DriverFactory.initAndroid(this)
         initKoin()
     }
 
