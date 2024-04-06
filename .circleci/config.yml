@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   android: circleci/android@2.5.0
+
 jobs:
   build:
     working_directory: ~/code
@@ -10,8 +11,10 @@ jobs:
       JVM_OPTS: -Xmx3200m
     steps:
       - checkout
+      - send_telegram_message:
+          message: "Your message goes here"
       - run:
-          name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
+          name: Chmod permissions
           command: sudo chmod +x ./gradlew
       - run:
           name: Download Dependencies
@@ -25,10 +28,10 @@ jobs:
           command: printf 'gemini_api_key=%s' \
             $gemini_api_key > local.properties
       - run:
-          name: Decode Android key store
-          command: echo $KEYSTORE_BASE64 | base64 -d | tee mabia_keystore
+          name: Decode Android keystore
+          command: echo $KEYSTORE_BASE64 | base64 -d > mabia_keystore
       - run:
-          name: Decode keystore.properties 'base64 -i keystore.properties'
+          name: Decode keystore.properties
           command: echo $KEYSTORE_PROPERTIES | base64 -d > keystore.properties
       - run:
           name: Create Google Play key
@@ -40,11 +43,6 @@ jobs:
           name: Create Fastlane Environment Variable
           command: printf 'TG_BOT_TOKEN=%s\nTG_CHAT_ID=%s' \
             $TG_BOT_TOKEN $TG_CHAT_ID > fastlane/.env
-
-#      - run:
-#          name: Test Composable Component `./gradlew desktopTest`
-#          command: ./gradlew desktopTest
-
       - run:
           name: Install Fastlane
           command: sudo gem install fastlane
@@ -61,3 +59,14 @@ workflows:
             branches:
               only:
                 - master
+
+# Reusable step to send a Telegram message
+send_telegram_message:
+  executor: android/default
+  steps:
+    - run:
+        name: Send Telegram Message
+        command: |
+          curl -s -X POST https://api.telegram.org/bot$TG_BOT_TOKEN/sendMessage \
+            -d chat_id=$TG_CHAT_ID \
+            -d text="$TELEGRAM_MESSAGE"

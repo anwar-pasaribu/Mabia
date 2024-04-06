@@ -17,6 +17,16 @@ default_platform(:android)
 
 platform :android do
 
+  before_all do |lane|
+#     sh "git config --global user.email 'anwar_pasaribu@live.com'"
+#     sh "git config --global user.name 'Anwar Pasaribu'"
+    telegram(
+        token: ENV['TG_BOT_TOKEN'], # get token from @BotFather
+        chat_id: ENV['TG_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
+        text: "🚀 Mabia lane starts to build",
+    )
+  end
+
   lane :playstore do
     version_code = increment_version_code(
       gradle_file_path: "composeApp/build.gradle.kts"
@@ -78,46 +88,28 @@ platform :android do
       gradle_file_path: "composeApp/build.gradle.kts"
     )
 
-    git_commit(
-      path: "./app/build.gradle",
-      message: "Fastlane Android: Released new build #{version_code} to Google PlayStore Production track [ci skip]"
-    )
-  end
-
-  before_all do |lane|
-    sh "git config --global user.email 'anwar_pasaribu@live.com'"
-    sh "git config --global user.name 'Anwar Pasaribu'"
-    telegram(
-        token: ENV['TG_BOT_TOKEN'], # get token from @BotFather
-        chat_id: ENV['TG_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
-        text: "Mabia lane starts to build ⚙️", # Required
-    )
+#     git_commit(
+#       path: "composeApp/build.gradle.kts",
+#       message: "Fastlane Android: Released new build #{version_code} to Google PlayStore Production track [ci skip]"
+#     )
   end
 
   after_all do |lane|
       # This block is called, only if the executed lane was successful
 
-      # slack(
-      #   message: "Successfully deployed new App Update."
-      # )
       telegram(
-        token: ENV['TG_BOT_TOKEN'], # get token from @BotFather
-        chat_id: ENV['TG_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
-        text: "Mabia lane successful", # Required
-        file: "file.pdf", # Optional. Please note, Bots can currently send files of any type of up to 50 MB in size.
-        mime_type: "application/pdf" # Required if file exist
+        token: ENV['TG_BOT_TOKEN'],
+        chat_id: ENV['TG_CHAT_ID'],
+        text: "🎉 Mabia lane successful",
       )
   end
 
   error do |lane, exception|
-      # slack(
-      #   message: exception.message,
-      #   success: false
-      # )
+
       telegram(
-        token: ENV['TG_BOT_TOKEN'], # get token from @BotFather
-        chat_id: ENV['TG_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
-        text: "Mabia lane failed. Msg: #{exception.message}", # Required
+        token: ENV['TG_BOT_TOKEN'],
+        chat_id: ENV['TG_CHAT_ID'],
+        text: "Mabia lane failed. Msg: #{exception.message}",
       )
   end
 end
