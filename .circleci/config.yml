@@ -11,8 +11,6 @@ jobs:
       JVM_OPTS: -Xmx3200m
     steps:
       - checkout
-      - send_telegram_message:
-          message: "Your message goes here"
       - run:
           name: Chmod permissions
           command: sudo chmod +x ./gradlew
