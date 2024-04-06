@@ -18,3 +18,10 @@ captures
 /iosApp/iosApp.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 /iosApp/iosApp.xcodeproj/xcshareddata/xcschemes/iosApp.xcscheme
 /kotlin-js-store/yarn.lock
+
+fastlane/metadata/*
+fastlane/anwar-p-7d3150c1293d.json
+fastlane/.env
+
+mabia_keystore
+keystore.properties

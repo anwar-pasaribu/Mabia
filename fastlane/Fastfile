@@ -1,0 +1,112 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  desc "Runs all the tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Submit a new Beta Build to Crashlytics Beta"
+  lane :beta do
+    gradle(task: "clean assembleRelease")
+    crashlytics
+  
+    # sh "your_script.sh"
+    # You can also use other beta testing services here
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+    gradle(task: "clean assembleRelease")
+    upload_to_play_store # Uploads the APK built in the gradle step above
+  end
+
+  lane :playstore do
+    gradle(
+      task: 'clean bundle',
+      build_type: 'Release'
+    )
+    # upload_to_play_store # Uploads the AAB built in the gradle step above
+    upload_to_play_store(
+          track: 'production', # production, beta, alpha, internal
+          release_status: 'completed',
+          aab: 'composeApp/build/outputs/bundle/release/composeApp-release.aab',
+          skip_upload_apk: true,
+          skip_upload_metadata: true,
+          skip_upload_changelogs: true,
+          skip_upload_images: true,
+          skip_upload_screenshots: true,
+          timeout: 600
+    )
+  end
+
+  lane :internal_playstore do
+    gradle(
+      task: 'clean bundle',
+      build_type: 'Release'
+    )
+    upload_to_play_store(
+      track: 'internal',
+      release_status: 'completed',
+      aab: 'composeApp/build/outputs/bundle/release/composeApp-release.aab',
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+    )
+  end
+
+  lane :distribute do
+      build_android_app(task: "clean bundle", build_type: 'Release')
+      # build_android_app is a built-in fastlane action.
+      release = firebase_app_distribution(
+          app: ENV['FIREBASE_ETONG_APP_ID_RELEASE'],
+          testers: 'anwar_pasaribu@live.com',
+          groups: 'Devs',
+          debug: true,
+          release_notes: 'Lots of amazing new features to test out',
+          android_artifact_type: 'AAB',
+          android_artifact_path: 'composeApp/build/outputs/bundle/release/composeApp-release.aab',
+          firebase_cli_token: ENV['FIREBASE_ETONG_CLI_TOKEN']
+      )
+  end
+
+  lane :clean_test_bundle_publish do
+    gradle(
+      task: 'clean test bundle',
+      build_type: 'Release'
+    )
+    upload_to_play_store # Uploads the AAB built in the gradle step above
+  end
+
+  lane :build_bundle_publish do
+    gradle(
+      task: ':composeApp:build :composeApp:bundle', # Task 'build' include 'assemble', 'lint' & 'test'
+      build_type: 'Release'
+    )
+    upload_to_play_store skip_upload_apk:true
+  end
+  lane :test_inc do
+    increment_version_code(
+          gradle_file_path: "composeApp/build.gradle.kts",
+          #ext_constant_name: "test"
+          #app_folder_name:"app"
+    )
+  end
+end

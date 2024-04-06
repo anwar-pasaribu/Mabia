@@ -1,7 +1,6 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+
 import com.codingfeline.buildkonfig.compiler.FieldSpec
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import java.util.Properties
 
 plugins {
@@ -108,6 +107,23 @@ android {
     sourceSets["main"].res.srcDirs("src/androidMain/res")
     sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
+    val keyProperties =
+        Properties().apply {
+            val propsFile = rootProject.file("keystore.properties")
+            if (propsFile.exists()) {
+                load(propsFile.inputStream())
+            }
+        }
+
+    signingConfigs {
+        create("release") {
+            keyAlias = keyProperties["keyAlias"].toString()
+            keyPassword = keyProperties["keyPassword"].toString()
+            storeFile = file(keyProperties["storeFile"].toString())
+            storePassword = keyProperties["storePassword"].toString()
+        }
+    }
+
     defaultConfig {
         applicationId = "com.unwur.mabiaho"
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -122,7 +138,9 @@ android {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = false
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
