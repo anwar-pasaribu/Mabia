@@ -1,5 +1,6 @@
 package ui.screen.emojis
 
+import PlayHapticAndSound
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -84,6 +85,10 @@ fun EmojiListScreen(
     val showOnboardingBottomMenu by viewModel.showOnboardingBottomMenu.collectAsState()
 
     val selectedEmojiUnicodeAndOffset = remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
+
+    if (selectedEmojiUnicode.isNotEmpty()) {
+        PlayHapticAndSound(selectedEmojiUnicode)
+    }
 
     Scaffold(
         topBar = {

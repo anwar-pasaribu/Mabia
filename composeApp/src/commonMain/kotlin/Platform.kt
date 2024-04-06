@@ -18,4 +18,7 @@ expect fun getUUIDString(): String
 /** Getting screen size info for UI-related calculations */
 data class ScreenSizeInfo(val hPX: Int, val wPX: Int, val hDP: Dp, val wDP: Dp)
 @Composable
-expect fun  getScreenSizeInfo(): ScreenSizeInfo
+expect fun getScreenSizeInfo(): ScreenSizeInfo
+
+@Composable
+expect fun PlayHapticAndSound(trigger: Any)
