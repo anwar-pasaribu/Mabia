@@ -57,13 +57,23 @@ platform :android do
   end
 
   lane :internal_playstore do
-    version_code = increment_version_code(
-      gradle_file_path: "composeApp/build.gradle.kts"
+    version_code = android_set_version_code(
+      gradle_file: "composeApp/build.gradle.kts",
+    )
+    version_name = android_set_version_name(
+      gradle_file: "composeApp/build.gradle.kts",
+      bump_type: "patch"
     )
 
     git_commit(
       path: "composeApp/build.gradle.kts",
-      message: "Internal: Released new build #{version_code} to Google PlayStore"
+      message: "Bump version #{version_name} (#{version_code})"
+    )
+
+    push_to_git_remote(
+      remote: "origin",         # optional, default: "origin"
+      remote_branch: "develop", # optional, default is set to local_branch
+      tags: false,    # optional, default: true
     )
 
     gradle(
