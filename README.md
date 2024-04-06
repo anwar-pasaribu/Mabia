@@ -1,6 +1,6 @@
 # Mabia - Daily mood tracker with Emoji
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/Do7TtLjiyve8gLKWn2g326/VwKY8YXZArDrFcvraFvLXc/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/Do7TtLjiyve8gLKWn2g326/VwKY8YXZArDrFcvraFvLXc/tree/main)
+[![CircleCI](https://dl.circleci.com/status-badge/img/circleci/Do7TtLjiyve8gLKWn2g326/VwKY8YXZArDrFcvraFvLXc/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/circleci/Do7TtLjiyve8gLKWn2g326/VwKY8YXZArDrFcvraFvLXc/tree/master)
 
 > Work in Progress
 
