@@ -21,8 +21,8 @@ platform :android do
 #     sh "git config --global user.email 'anwar_pasaribu@live.com'"
 #     sh "git config --global user.name 'Anwar Pasaribu'"
     telegram(
-        token: ENV['TG_BOT_TOKEN'], # get token from @BotFather
-        chat_id: ENV['TG_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
+        token: ENV['TELEGRAM_BOT_TOKEN'], # get token from @BotFather
+        chat_id: ENV['TELEGRAM_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
         text: "🚀 Mabia lane starts to build",
     )
   end
@@ -98,8 +98,8 @@ platform :android do
       # This block is called, only if the executed lane was successful
 
       telegram(
-        token: ENV['TG_BOT_TOKEN'],
-        chat_id: ENV['TG_CHAT_ID'],
+        token: ENV['TELEGRAM_BOT_TOKEN'],
+        chat_id: ENV['TELEGRAM_CHAT_ID'],
         text: "🎉 Mabia lane successful",
       )
   end
@@ -107,8 +107,8 @@ platform :android do
   error do |lane, exception|
 
       telegram(
-        token: ENV['TG_BOT_TOKEN'],
-        chat_id: ENV['TG_CHAT_ID'],
+        token: ENV['TELEGRAM_BOT_TOKEN'],
+        chat_id: ENV['TELEGRAM_CHAT_ID'],
         text: "Mabia lane failed. Msg: #{exception.message}",
       )
   end

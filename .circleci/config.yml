@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   android: circleci/android@2.5.0
+  telegram: woltsu/telegram@0.0.9
 
 jobs:
   build:
@@ -11,6 +12,8 @@ jobs:
       JVM_OPTS: -Xmx3200m
     steps:
       - checkout
+      - telegram/notify:
+          message: "⚙️ Mabia Pipeline Started"
       - run:
           name: Chmod permissions
           command: sudo chmod +x ./gradlew
@@ -39,14 +42,16 @@ jobs:
           command: echo $GOOGLE_SERVICES_JSON > composeApp/google-services.json
       - run:
           name: Create Fastlane Environment Variable
-          command: printf 'TG_BOT_TOKEN=%s\nTG_CHAT_ID=%s' \
-            $TG_BOT_TOKEN $TG_CHAT_ID > fastlane/.env
+          command: printf 'TELEGRAM_BOT_TOKEN=%s\nTELEGRAM_CHAT_ID=%s' \
+            $TELEGRAM_BOT_TOKEN $TELEGRAM_CHAT_ID > fastlane/.env
       - run:
           name: Install Fastlane
           command: sudo gem install fastlane
       - run:
           name: Uploading an AAB to Playstore (Internal)
           command: fastlane internal_playstore
+      - telegram/notify:
+          message: "✅ Mabia Pipeline Finished"
 
 workflows:
   version: 2
@@ -57,14 +62,3 @@ workflows:
             branches:
               only:
                 - master
-
-# Reusable step to send a Telegram message
-send_telegram_message:
-  executor: android/default
-  steps:
-    - run:
-        name: Send Telegram Message
-        command: |
-          curl -s -X POST https://api.telegram.org/bot$TG_BOT_TOKEN/sendMessage \
-            -d chat_id=$TG_CHAT_ID \
-            -d text="$TELEGRAM_MESSAGE"
