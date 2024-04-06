@@ -16,31 +16,22 @@
 default_platform(:android)
 
 platform :android do
-  desc "Runs all the tests"
-  lane :test do
-    gradle(task: "test")
-  end
-
-  desc "Submit a new Beta Build to Crashlytics Beta"
-  lane :beta do
-    gradle(task: "clean assembleRelease")
-    crashlytics
-  
-    # sh "your_script.sh"
-    # You can also use other beta testing services here
-  end
-
-  desc "Deploy a new version to the Google Play"
-  lane :deploy do
-    gradle(task: "clean assembleRelease")
-    upload_to_play_store # Uploads the APK built in the gradle step above
-  end
 
   lane :playstore do
+    version_code = increment_version_code(
+      gradle_file_path: "composeApp/build.gradle.kts"
+    )
+
+    git_commit(
+      path: "composeApp/build.gradle.kts",
+      message: "Production: Released new build #{version_code} to Google PlayStore"
+    )
+
     gradle(
       task: 'clean bundle',
       build_type: 'Release'
     )
+
     # upload_to_play_store # Uploads the AAB built in the gradle step above
     upload_to_play_store(
           track: 'production', # production, beta, alpha, internal
@@ -56,10 +47,20 @@ platform :android do
   end
 
   lane :internal_playstore do
+    version_code = increment_version_code(
+      gradle_file_path: "composeApp/build.gradle.kts"
+    )
+
+    git_commit(
+      path: "composeApp/build.gradle.kts",
+      message: "Internal: Released new build #{version_code} to Google PlayStore"
+    )
+
     gradle(
       task: 'clean bundle',
       build_type: 'Release'
     )
+
     upload_to_play_store(
       track: 'internal',
       release_status: 'completed',
@@ -72,41 +73,41 @@ platform :android do
     )
   end
 
-  lane :distribute do
-      build_android_app(task: "clean bundle", build_type: 'Release')
-      # build_android_app is a built-in fastlane action.
-      release = firebase_app_distribution(
-          app: ENV['FIREBASE_ETONG_APP_ID_RELEASE'],
-          testers: 'anwar_pasaribu@live.com',
-          groups: 'Devs',
-          debug: true,
-          release_notes: 'Lots of amazing new features to test out',
-          android_artifact_type: 'AAB',
-          android_artifact_path: 'composeApp/build/outputs/bundle/release/composeApp-release.aab',
-          firebase_cli_token: ENV['FIREBASE_ETONG_CLI_TOKEN']
+  lane :test_inc do
+    version_code = increment_version_code(
+      gradle_file_path: "composeApp/build.gradle.kts"
+    )
+
+    git_commit(
+      path: "./app/build.gradle",
+      message: "Fastlane Android: Released new build #{version_code} to Google PlayStore Production track [ci skip]"
+    )
+  end
+
+  after_all do |lane|
+      # This block is called, only if the executed lane was successful
+
+      # slack(
+      #   message: "Successfully deployed new App Update."
+      # )
+      telegram(
+        token: ENV['TG_BOT_TOKEN'], # get token from @BotFather
+        chat_id: ENV['TG_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
+        text: "Mabia lane successful", # Required
+        file: "file.pdf", # Optional. Please note, Bots can currently send files of any type of up to 50 MB in size.
+        mime_type: "application/pdf" # Required if file exist
       )
   end
 
-  lane :clean_test_bundle_publish do
-    gradle(
-      task: 'clean test bundle',
-      build_type: 'Release'
-    )
-    upload_to_play_store # Uploads the AAB built in the gradle step above
-  end
-
-  lane :build_bundle_publish do
-    gradle(
-      task: ':composeApp:build :composeApp:bundle', # Task 'build' include 'assemble', 'lint' & 'test'
-      build_type: 'Release'
-    )
-    upload_to_play_store skip_upload_apk:true
-  end
-  lane :test_inc do
-    increment_version_code(
-          gradle_file_path: "composeApp/build.gradle.kts",
-          #ext_constant_name: "test"
-          #app_folder_name:"app"
-    )
+  error do |lane, exception|
+      # slack(
+      #   message: exception.message,
+      #   success: false
+      # )
+      telegram(
+        token: ENV['TG_BOT_TOKEN'], # get token from @BotFather
+        chat_id: ENV['TG_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
+        text: "Mabia lane failed. Msg: #{exception.message}", # Required
+      )
   end
 end

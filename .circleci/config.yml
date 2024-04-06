@@ -29,7 +29,7 @@ jobs:
           command: echo $KEYSTORE_BASE64 | base64 -d | tee mabia_keystore
       - run:
           name: Decode keystore.properties 'base64 -i keystore.properties'
-          command: echo $KEYSTORE_PROPERTIES | base64 -d | tee keystore.properties
+          command: echo $KEYSTORE_PROPERTIES | base64 -d > keystore.properties
       - run:
           name: Create Google Play key
           command: echo $GOOGLE_PLAY_KEY > fastlane/anwar-p-7d3150c1293d.json
