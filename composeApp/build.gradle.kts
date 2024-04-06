@@ -9,6 +9,8 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.buildkonfig)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.googleServices)
+    alias(libs.plugins.firebaseCrashlytics)
 }
 
 kotlin {
@@ -58,6 +60,9 @@ kotlin {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.core.splashscreen)
+
+            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.7.3"))
+            implementation("com.google.firebase:firebase-crashlytics")
         }
         iosMain.dependencies {
         }
