@@ -2,6 +2,19 @@ version: 2.1
 orbs:
   android: circleci/android@2.5.0
 
+commands:
+  send_telegram_message:
+    parameters:
+      message:
+        type: string
+    steps:
+      - run:
+          name: Send Telegram Message
+          command: |
+            curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
+              -d chat_id=$TELEGRAM_CHAT_ID \
+              -d text="$TELEGRAM_MESSAGE"
+
 jobs:
   build:
     working_directory: ~/code
@@ -11,12 +24,8 @@ jobs:
       JVM_OPTS: -Xmx3200m
     steps:
       - checkout
-      - run:
-          name: Send Telegram Message
-          command: |
-            curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
-              -d chat_id=$TELEGRAM_CHAT_ID \
-              -d text="⚙️ Mabia Pipeline Started"
+      - send_telegram_message:
+          message: "⚙️ Mabia Pipeline Started"
       - run:
           name: Chmod permissions
           command: sudo chmod +x ./gradlew
@@ -53,12 +62,8 @@ jobs:
       - run:
           name: Uploading an AAB to Playstore (Internal)
           command: fastlane internal_playstore
-      - run:
-          name: Send Telegram Message
-          command: |
-            curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
-              -d chat_id=$TELEGRAM_CHAT_ID \
-              -d text="✅ Mabia Pipeline Finished"
+      - send_telegram_message:
+          message: "✅ Mabia Pipeline Finished"
 
 workflows:
   version: 2
