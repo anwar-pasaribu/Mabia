@@ -66,10 +66,9 @@ platform :android do
     )
 
     current_datetime = Time.now.strftime("%d %b %Y, %I:%M%P")
-    puts "Current datetime is: #{current_datetime}"
     git_commit(
       path: "composeApp/build.gradle.kts",
-      message: "Bump version #{version_name} (#{version_code}) at #{current_datetime}"
+      message: "Bumped version to #{version_name} (build #{version_code}) on #{current_datetime}"
     )
 
     push_to_git_remote(
