@@ -1,7 +1,6 @@
 package ui.component
 
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateSize
 import androidx.compose.animation.core.spring
@@ -42,19 +41,16 @@ fun MoodGridItem(
     onSelect: (String, Offset) -> Unit
 ) {
 
-    var isSelected by remember { mutableStateOf(selected) }
+    val emojiUnicode = remember { content }
+    var isSelected by remember { mutableStateOf(false) }
+    var emojiCenterOffset by remember { mutableStateOf(Offset.Zero) }
+
+    LaunchedEffect(isSelected) {
+        delay(300)
+        isSelected = false
+    }
 
     val animationTransition = updateTransition(isSelected, label = "ScalingBoxTransition")
-    val roundedCornerAnimationVal by animationTransition.animateDp(
-        targetValueByState = { pressed -> if (pressed) 32.dp else 24.dp },
-        label = "RoundedCornerTransition",
-        transitionSpec = {
-            spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-            )
-        }
-    )
-
     val sizeAnimation by animationTransition.animateSize(
         targetValueByState = { pressed ->
             if (pressed) {
@@ -72,11 +68,6 @@ fun MoodGridItem(
         }
     )
 
-    LaunchedEffect(isSelected) {
-        delay(300)
-        isSelected = false
-    }
-
     val alphaAnimVal by animationTransition.animateFloat(
         targetValueByState = { pressed ->
             if (pressed) {
@@ -87,7 +78,8 @@ fun MoodGridItem(
         },
         label = "AlphaTransition",
     )
-    var emojiCenterOffset by remember { mutableStateOf(Offset.Zero) }
+
+    val shape = remember { RoundedCornerShape(24.dp) }
 
     Box(
         modifier = modifier.then(
@@ -97,7 +89,7 @@ fun MoodGridItem(
                     isSelected = !isSelected
                     onSelect(content, emojiCenterOffset)
                 }
-                .clip(RoundedCornerShape(roundedCornerAnimationVal))
+                .clip(shape)
                 .aspectRatio(1F)
                 .background(
                     MaterialTheme.colorScheme.surfaceContainerHighest.copy(
@@ -117,7 +109,7 @@ fun MoodGridItem(
                 }.graphicsLayer {
                     alpha = alphaAnimVal
                 },
-                text = content,
+                text = emojiUnicode,
                 fontSize = TextUnit(64F, TextUnitType.Sp)
             )
         }
