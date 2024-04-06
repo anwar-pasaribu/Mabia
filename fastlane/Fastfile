@@ -18,8 +18,8 @@ default_platform(:android)
 platform :android do
 
   before_all do |lane|
-#     sh "git config --global user.email 'anwar_pasaribu@live.com'"
-#     sh "git config --global user.name 'Anwar Pasaribu'"
+    sh "git config --global user.email 'anwar_pasaribu@live.com'"
+    sh "git config --global user.name 'Anwar Pasaribu'"
     telegram(
         token: ENV['TELEGRAM_BOT_TOKEN'], # get token from @BotFather
         chat_id: ENV['TELEGRAM_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
@@ -83,15 +83,31 @@ platform :android do
     )
   end
 
-  lane :test_inc do
-    version_code = increment_version_code(
-      gradle_file_path: "composeApp/build.gradle.kts"
+  lane :test_versioning do
+
+    version_code = android_set_version_code(
+      gradle_file: "composeApp/build.gradle.kts",
+    )
+    version_name = android_set_version_name(
+      gradle_file: "composeApp/build.gradle.kts",
+      bump_type: "patch"
     )
 
-#     git_commit(
-#       path: "composeApp/build.gradle.kts",
-#       message: "Fastlane Android: Released new build #{version_code} to Google PlayStore Production track [ci skip]"
-#     )
+    git_commit(
+      path: "composeApp/build.gradle.kts",
+      message: "Bump version #{version_name} (#{version_code})"
+    )
+
+    push_to_git_remote(
+      remote: "origin",         # optional, default: "origin"
+      local_branch: "develop",  # optional, aliased by "branch", default is set to current branch
+      remote_branch: "develop", # optional, default is set to local_branch
+      force: false,    # optional, default: false
+      force_with_lease: false,   # optional, default: false
+      tags: false,    # optional, default: true
+      no_verify: true,# optional, default: false
+      set_upstream: false        # optional, default: false
+    )
   end
 
   after_all do |lane|
