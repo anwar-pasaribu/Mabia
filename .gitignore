@@ -25,3 +25,5 @@ fastlane/.env
 
 mabia_keystore
 keystore.properties
+
+composeApp/google-services.json

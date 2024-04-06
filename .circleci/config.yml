@@ -33,13 +33,13 @@ jobs:
       - run:
           name: Create Google Play key
           command: echo $GOOGLE_PLAY_KEY > fastlane/anwar-p-7d3150c1293d.json
-#      - run:
-#          name: Create Google Services JSON
-#          command: echo $GOOGLE_SERVICES_JSON > composeApp/google-services.json
-#      - run:
-#          name: Create Fastlane Environment Variable
-#          command: printf 'FIREBASE_ETONG_APP_ID_RELEASE=%s\nFIREBASE_ETONG_CLI_TOKEN=%s' \
-#            $FIREBASE_ETONG_APP_ID_RELEASE $FIREBASE_ETONG_CLI_TOKEN > fastlane/.env
+      - run:
+          name: Create Google Services JSON
+          command: echo $GOOGLE_SERVICES_JSON > composeApp/google-services.json
+      - run:
+          name: Create Fastlane Environment Variable
+          command: printf 'TG_BOT_TOKEN=%s\nTG_CHAT_ID=%s' \
+            $TG_BOT_TOKEN $TG_CHAT_ID > fastlane/.env
 
 #      - run:
 #          name: Test Composable Component `./gradlew desktopTest`
