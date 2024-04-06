@@ -146,9 +146,8 @@ fun EmojiListScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(items = emojiListFlowState, key = { it.id }) { item ->
-                    MoodGridItem(
-                        content = item.emojiUnicode.trim(),
-                    ) { selectedUnicode, offset ->
+
+                    MoodGridItem(content = item.emojiUnicode.trim()) { selectedUnicode, offset ->
                         selectedEmojiUnicodes.add(selectedUnicode)
                         selectedEmojiUnicode = selectedUnicode
                         viewModel.saveSelectedEmojiUnicode(selectedUnicode)
