@@ -5,22 +5,42 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000188">
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000202">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: telegram" time="1.742844">
+      <testcase classname="fastlane.lanes" name="1: git config --global user.email &apos;anwar_pasaribu@live.com&apos;" time="0.017074">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: increment_version_code" time="0.004091">
+      <testcase classname="fastlane.lanes" name="2: git config --global user.name &apos;Anwar Pasaribu&apos;" time="0.008532">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="3: telegram" time="0.792275">
+      <testcase classname="fastlane.lanes" name="3: telegram" time="2.67003">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="4: android_set_version_code" time="0.00449">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="5: android_set_version_name" time="0.001454">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="6: git_commit" time="0.048303">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="7: push_to_git_remote" time="50.021751">
         
       </testcase>
     

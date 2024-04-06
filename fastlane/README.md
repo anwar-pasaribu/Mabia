@@ -31,10 +31,10 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 
 
-### android test_inc
+### android test_versioning
 
 ```sh
-[bundle exec] fastlane android test_inc
+[bundle exec] fastlane android test_versioning
 ```
 
 
