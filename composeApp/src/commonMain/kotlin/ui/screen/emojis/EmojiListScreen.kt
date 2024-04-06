@@ -1,5 +1,6 @@
 package ui.screen.emojis
 
+import PlayHapticAndSound
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -85,6 +86,10 @@ fun EmojiListScreen(
 
     val selectedEmojiUnicodeAndOffset = remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
 
+    if (selectedEmojiUnicode.isNotEmpty()) {
+        PlayHapticAndSound(selectedEmojiUnicode)
+    }
+
     Scaffold(
         topBar = {
             Column(
@@ -141,9 +146,8 @@ fun EmojiListScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(items = emojiListFlowState, key = { it.id }) { item ->
-                    MoodGridItem(
-                        content = item.emojiUnicode.trim(),
-                    ) { selectedUnicode, offset ->
+
+                    MoodGridItem(content = item.emojiUnicode.trim()) { selectedUnicode, offset ->
                         selectedEmojiUnicodes.add(selectedUnicode)
                         selectedEmojiUnicode = selectedUnicode
                         viewModel.saveSelectedEmojiUnicode(selectedUnicode)
