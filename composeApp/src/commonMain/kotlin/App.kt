@@ -1,3 +1,4 @@
+
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.EaseInOut
@@ -16,7 +17,6 @@ import moe.tlaster.precompose.navigation.NavOptions
 import moe.tlaster.precompose.navigation.PopUpTo
 import moe.tlaster.precompose.navigation.rememberNavigator
 import moe.tlaster.precompose.navigation.transition.NavTransition
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 import ui.screen.emojis.EmojiListScreen
 import ui.screen.history.HistoryScreen
@@ -27,13 +27,7 @@ import ui.screen.splash.Splash
 import ui.theme.MyAppTheme
 
 @Composable
-@Preview
 fun App(shouldDarkTheme: Boolean = isSystemInDarkTheme()) {
-//    KoinApplication(
-//        application = {
-//            modules(platformModule() + appModule() + databaseModule())
-//        }
-//    ) {
     PreComposeApp {
         KoinContext {
             MyAppTheme {
@@ -131,7 +125,6 @@ fun App(shouldDarkTheme: Boolean = isSystemInDarkTheme()) {
             }
         }
     }
-//    }
 }
 
 object ScreenRoute {

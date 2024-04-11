@@ -64,18 +64,15 @@ kotlin {
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.7.3"))
             implementation("com.google.firebase:firebase-crashlytics")
         }
-        iosMain.dependencies {
-        }
+//        iosMain.dependencies {
+//        }
         commonMain.dependencies {
             implementation(projects.database)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
-            implementation(compose.animation)
-            implementation(compose.animationGraphics)
             implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
 
             implementation(libs.kotlinx.datetime)
 
@@ -133,8 +130,8 @@ android {
         applicationId = "com.unwur.mabiaho"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 6
-        versionName = "1.0.6"
+        versionCode = 7
+        versionName = "1.0.7"
     }
     packaging {
         resources {
