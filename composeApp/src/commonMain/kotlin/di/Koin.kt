@@ -36,7 +36,6 @@ fun appModule() = module {
     }
     single {
         EmojiListScreenViewModel(
-            savedStateHolder = it.get(),
             keyValueStorageRepository = get(),
             sqlStorageRepository = get()
         )
