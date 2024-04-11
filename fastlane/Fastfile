@@ -20,10 +20,11 @@ platform :android do
   before_all do |lane|
     sh "git config --global user.email 'anwar_pasaribu@live.com'"
     sh "git config --global user.name 'Anwar Pasaribu'"
+    current_datetime = Time.now.strftime("%d %b %Y, %I:%M%P")
     telegram(
         token: ENV['TELEGRAM_BOT_TOKEN'], # get token from @BotFather
         chat_id: ENV['TELEGRAM_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
-        text: "🚀 Mabia lane starts to build",
+        text: "🚀 Mabia lane starts to build at #{current_datetime} .",
     )
   end
 
@@ -123,20 +124,21 @@ platform :android do
 
   after_all do |lane|
       # This block is called, only if the executed lane was successful
-
+      current_datetime = Time.now.strftime("%d %b %Y, %I:%M%P")
       telegram(
         token: ENV['TELEGRAM_BOT_TOKEN'],
         chat_id: ENV['TELEGRAM_CHAT_ID'],
-        text: "🎉 Mabia lane successful",
+        text: "🎉 Mabia lane successful #{current_datetime} .",
       )
   end
 
   error do |lane, exception|
 
+      current_datetime = Time.now.strftime("%d %b %Y, %I:%M%P")
       telegram(
         token: ENV['TELEGRAM_BOT_TOKEN'],
         chat_id: ENV['TELEGRAM_CHAT_ID'],
-        text: "Mabia lane failed. Msg: #{exception.message}",
+        text: "Mabia lane failed at #{current_datetime} Msg: #{exception.message} .",
       )
   end
 end
