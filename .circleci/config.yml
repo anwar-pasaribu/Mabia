@@ -9,12 +9,11 @@ commands:
         type: string
     steps:
       - run: |
-          # Using a subshell to set TZ environment variable just for the date command
-          MESSAGE="<< parameters.message >> - $(TZ='Asia/Bangkok' date +"%Y-%m-%dT%H:%M:%S%z")"
+          # Adjusting for GMT+7 and formatting the date
+          MESSAGE="<< parameters.message >> - $(TZ='Asia/Bangkok' date +"%d %b %Y at %H:%M")"
           curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
             -d chat_id=$TELEGRAM_CHAT_ID \
             -d text="$MESSAGE"
-
 
 
 jobs:
