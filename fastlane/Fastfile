@@ -20,7 +20,7 @@ platform :android do
   before_all do |lane|
     sh "git config --global user.email 'anwar_pasaribu@live.com'"
     sh "git config --global user.name 'Anwar Pasaribu'"
-    current_datetime = Time.now.strftime("%d %b %Y, %I:%M%P")
+    current_datetime = Time.now.in_time_zone("Asia/Jakarta").strftime("%d %b %Y, %I:%M%P")
     telegram(
         token: ENV['TELEGRAM_BOT_TOKEN'], # get token from @BotFather
         chat_id: ENV['TELEGRAM_CHAT_ID'], # https://stackoverflow.com/questions/33858927/how-to-obtain-the-chat-id-of-a-private-telegram-channel
@@ -66,7 +66,7 @@ platform :android do
       bump_type: "patch"
     )
 
-    current_datetime = Time.now.strftime("%d %b %Y, %I:%M%P")
+    current_datetime = Time.now.in_time_zone("Asia/Jakarta").strftime("%d %b %Y, %I:%M%P")
     git_commit(
       path: "composeApp/build.gradle.kts",
       message: "Bumped version to #{version_name} (build #{version_code}) on #{current_datetime}"
@@ -124,7 +124,7 @@ platform :android do
 
   after_all do |lane|
       # This block is called, only if the executed lane was successful
-      current_datetime = Time.now.strftime("%d %b %Y, %I:%M%P")
+      current_datetime = Time.now.in_time_zone("Asia/Jakarta").strftime("%d %b %Y, %I:%M%P")
       telegram(
         token: ENV['TELEGRAM_BOT_TOKEN'],
         chat_id: ENV['TELEGRAM_CHAT_ID'],
@@ -134,11 +134,11 @@ platform :android do
 
   error do |lane, exception|
 
-      current_datetime = Time.now.strftime("%d %b %Y, %I:%M%P")
+      current_datetime = Time.now.in_time_zone("Asia/Jakarta").strftime("%d %b %Y, %I:%M%P")
       telegram(
         token: ENV['TELEGRAM_BOT_TOKEN'],
         chat_id: ENV['TELEGRAM_CHAT_ID'],
-        text: "Mabia lane failed at #{current_datetime} Msg: #{exception.message} .",
+        text: "😭 Mabia lane failed at #{current_datetime} Msg: #{exception.message} .",
       )
   end
 end

@@ -9,10 +9,14 @@ commands:
         type: string
     steps:
       - run: |
-          MESSAGE="<< parameters.message >> - $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          # Set the timezone to Jakarta
+          TZ='Asia/Jakarta'
+          # Format the date and append it to your message
+          MESSAGE="<< parameters.message >> - $(date +"%d %b %Y at %I:%M%p" --date='TZ="Asia/Jakarta"')"
           curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage \
             -d chat_id=$TELEGRAM_CHAT_ID \
             -d text="$MESSAGE"
+
 
 
 jobs:
