@@ -64,18 +64,15 @@ kotlin {
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.7.3"))
             implementation("com.google.firebase:firebase-crashlytics")
         }
-        iosMain.dependencies {
-        }
+//        iosMain.dependencies {
+//        }
         commonMain.dependencies {
             implementation(projects.database)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
-            implementation(compose.animation)
-            implementation(compose.animationGraphics)
             implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
 
             implementation(libs.kotlinx.datetime)
 
