@@ -12,7 +12,7 @@ fun MyAppTheme(
     content: @Composable () -> Unit
 ) {
     MaterialTheme(
-        colorScheme = if (useDarkColors) AppDarkColors else AppLightColors,
+        colorScheme = if (useDarkColors) darkScheme else lightScheme,
         shapes = MaterialTheme.shapes.copy(
             extraSmall = RoundedCornerShape(10.dp),
             small = RoundedCornerShape(10.dp),
