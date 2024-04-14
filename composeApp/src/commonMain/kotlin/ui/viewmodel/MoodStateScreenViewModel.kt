@@ -2,95 +2,36 @@ package ui.viewmodel
 
 import androidx.compose.ui.util.fastMap
 import data.EmojiList
-import dev.shreyaspatil.ai.client.generativeai.type.content
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import kotlinx.datetime.todayIn
-import kotlinx.datetime.until
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 import repo.ISqlStorageRepository
-import service.GenerativeAiService
-import toComposeImageBitmap
-import ui.screen.ai.ChatUiState
-import ui.screen.ai.MutableChatUiState
-import ui.screen.ai.model.ModelChatMessage
-import ui.screen.ai.model.UserChatMessage
 import ui.screen.emojis.model.EmojiUiModel
 import kotlin.math.roundToInt
 
-class HistoryScreenViewModel(
+class MoodStateScreenViewModel(
     private val sqlStorageRepository: ISqlStorageRepository,
-    private val aiService: GenerativeAiService,
 ) : ViewModel() {
 
     val emojiListStateFlow = MutableStateFlow(emptyList<EmojiUiModel>())
     val calenderListStateFlow = MutableStateFlow(emptyList<LocalDate>())
     private val _moodRate = MutableStateFlow(EmojiList.MOOD_UNKNOWN)
-
-    private val _uiState = MutableChatUiState()
-    val uiState: ChatUiState = _uiState
+    val moodRate: StateFlow<Int> = _moodRate.asStateFlow()
 
     private val emojiUnicodeList = hashMapOf<String, Int>()
 
-    private val chat = aiService.startChat(
-        history = listOf(
-            content(role = "user") { text("Hello AI.") },
-            content(role = "model") { text("Great to meet you.") },
-        ),
-    )
-
-    fun loadCalenderData() {
-        if (calenderListStateFlow.value.isNotEmpty()) return
-        viewModelScope.launch {
-            val today: LocalDate = Clock.System.todayIn(
-                TimeZone.currentSystemDefault()
-            )
-            val todayMonthNumber = today.monthNumber
-            val localDateListThisYear = mutableListOf<LocalDate>()
-            (1 until (todayMonthNumber)).forEach {
-                val start = LocalDate(year = today.year, monthNumber = it, dayOfMonth = 1)
-                val end = start.plus(1, DateTimeUnit.MONTH)
-                val totalDayCountInTheMonth = start.until(end, DateTimeUnit.DAY)
-                localDateListThisYear.add(
-                    LocalDate(year = today.year, monthNumber = it, dayOfMonth = totalDayCountInTheMonth)
-                )
-            }
-            localDateListThisYear.add(today)
-
-            calenderListStateFlow.emit(localDateListThisYear)
-        }
-
-    }
-
-    fun loadAllEmoji() {
-        viewModelScope.launch {
-            sqlStorageRepository.getAllEmoji().collect { emojiList ->
-                emojiListStateFlow.emit(emojiList.fastMap { emoji ->
-                    EmojiUiModel(id = emoji.id.toInt(), emojiUnicode = emoji.emojiUnicode)
-                })
-            }
-        }
-    }
-
     fun getEmojiByTimeStampRange(untilTimeStampMillis: Long) {
-        _uiState.canSendMessage = false
         val tz = TimeZone.currentSystemDefault()
         val selectedDateTime = Instant.fromEpochMilliseconds(
             untilTimeStampMillis
@@ -118,7 +59,6 @@ class HistoryScreenViewModel(
                     })
 
                     calculatePercentage(emojiUnicodeList)
-                    _uiState.canSendMessage = emojiUnicodeList.isNotEmpty()
                 }
         }
     }
@@ -157,18 +97,6 @@ class HistoryScreenViewModel(
         println(jsonString)
 
         _moodRate.value = calculateMoodRating(percentages)
-//        if (_uiState.canSendMessage && emojiUnicodeList.isNotEmpty()) {
-//            try {
-//                sendMessage(
-//                    "$csv \n\n dari emoji itu, rate mood dari angka 1 sampe 7. " +
-//                            "jawab dgn nomor 1 sampai 7. pastikan responmu hanya berupa nomor.",
-//                )
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        } else {
-//            _moodRate.value = calculateMoodRating(percentages)
-//        }
     }
 
     /**
@@ -194,48 +122,5 @@ class HistoryScreenViewModel(
 
         // Round the average pleasantness level to the nearest integer
         return averagePleasantness.roundToInt()
-    }
-
-    @Throws(dev.shreyaspatil.ai.client.generativeai.type.InvalidStateException::class)
-    private fun sendMessage(prompt: String, image: ByteArray? = null) {
-        val completeText = StringBuilder()
-
-        val base = if (image != null) {
-            aiService.generateContentWithVision(prompt, image)
-        } else {
-            chat.sendMessageStream(prompt)
-        }
-
-        val modelMessage = ModelChatMessage.LoadingModelMessage(
-            base.map { it.text ?: "" }
-                .onEach { completeText.append(it) }
-                .onStart { _uiState.canSendMessage = false }
-                .onCompletion {
-                    _uiState.setLastModelMessageAsLoaded(completeText.toString())
-                    _uiState.canSendMessage = true
-
-                    println("GEMINI: $completeText")
-                    var geminiRes = completeText.toString()
-                    while (geminiRes.toIntOrNull() != null) {
-                        val rateNumber = geminiRes.toInt()
-                        geminiRes = ""
-                        _moodRate.value = rateNumber
-                    }
-
-                    if (image != null) {
-                        chat.history.add(content("user") { text(prompt) })
-                        chat.history.add(content("model") { text(completeText.toString()) })
-                    }
-                }
-                .catch {
-                    _uiState.setLastMessageAsError(it.toString())
-                    it.printStackTrace()
-               },
-        )
-
-        viewModelScope.launch {
-            _uiState.addMessage(UserChatMessage(prompt, image?.toComposeImageBitmap()))
-            _uiState.addMessage(modelMessage)
-        }
     }
 }

@@ -60,6 +60,7 @@ import ui.component.GlassyButton
 import ui.component.HomeCardDisplay
 import ui.component.MoodGridItem
 import ui.component.WeekView
+import ui.screen.moodRate.MoodStateBottomSheet
 import ui.viewmodel.EmojiListScreenViewModel
 
 @OptIn(
@@ -85,7 +86,11 @@ fun EmojiListScreen(
     val emojiListFlowState by viewModel.emojiListStateFlow.collectAsState()
     val showOnboardingBottomMenu by viewModel.showOnboardingBottomMenu.collectAsState()
 
-    val selectedEmojiUnicodeAndOffset = remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
+    val selectedEmojiUnicodeAndOffset =
+        remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
+
+    var selectedDateTimeStamp by remember { mutableStateOf(0L) }
+    var showSheet by remember { mutableStateOf(false) }
 
     if (selectedEmojiUnicode.isNotEmpty()) {
         PlayHapticAndSound(selectedEmojiUnicode)
@@ -93,6 +98,15 @@ fun EmojiListScreen(
 
     LaunchedEffect(true) {
         viewModel.loadAllEmoji()
+    }
+
+    if (showSheet) {
+        MoodStateBottomSheet(
+            onDismiss = {
+                showSheet = false
+            },
+            selectedDateTimeStamp = selectedDateTimeStamp
+        )
     }
 
     Scaffold(
@@ -115,9 +129,15 @@ fun EmojiListScreen(
                 )
 
                 if (!showOnboardingBottomMenu) {
-                    WeekView(modifier = Modifier.padding(start = 8.dp, end = 8.dp)) {
-                        openHistoryScreen()
-                    }
+                    WeekView(modifier = Modifier.padding(start = 8.dp, end = 8.dp),
+                        onMonthNameClick = {
+                            openHistoryScreen()
+                        },
+                        onWeekDayClick = {
+                            selectedDateTimeStamp = it
+                            showSheet = true
+                        }
+                    )
                 }
 
                 if (showOnboardingBottomMenu) {
