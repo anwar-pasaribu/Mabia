@@ -37,8 +37,7 @@ import ui.extension.bouncingClickable
 fun MoodGridItem(
     modifier: Modifier = Modifier,
     content: String,
-    selected: Boolean = false,
-    onSelect: (String, Offset) -> Unit
+    onSelect: (String, Offset) -> Unit = { _, _ -> }
 ) {
 
     val emojiUnicode = remember { content }

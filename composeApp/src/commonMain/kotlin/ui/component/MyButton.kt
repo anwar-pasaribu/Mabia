@@ -8,9 +8,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -44,7 +42,7 @@ fun GlassyButton(
         label = "BouncingClickableShadowTransition"
     )
 
-    TextButton(
+    ElevatedButton(
         modifier = modifier.then(
             Modifier.defaultMinSize(minWidth = 256.dp).graphicsLayer {
                 this.scaleX = scaleFactor
@@ -58,10 +56,6 @@ fun GlassyButton(
         enabled = enabled,
         onClick = { onClick() },
         interactionSource = interactionSource,
-        colors = ButtonDefaults.textButtonColors().copy(
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
     ) {
         buttonText()

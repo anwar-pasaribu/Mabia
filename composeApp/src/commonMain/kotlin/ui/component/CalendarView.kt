@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,17 +38,17 @@ private fun CalendarCell(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val circleShape = remember { CircleShape }
     Box(
         modifier = modifier
             .bouncingClickable { onClick() }
             .aspectRatio(1f)
             .fillMaxSize()
             .padding(2.dp)
+            .clip(circleShape)
             .background(
-                shape = CircleShape,
                 color = MaterialTheme.colorScheme.surfaceContainerHighest,
             )
-            .clip(CircleShape)
     ) {
         if (signal) {
             Box(
@@ -55,7 +56,6 @@ private fun CalendarCell(
                     .aspectRatio(1f)
                     .fillMaxSize()
                     .background(
-                        shape = CircleShape,
                         color = MaterialTheme.colorScheme.errorContainer
                     )
             )
@@ -108,7 +108,7 @@ private fun CalendarGrid(
     val dayOfMonth = date.first().first.dayOfMonth
     val day1ThisMonth = date.first().first.minus(dayOfMonth - 1, DateTimeUnit.DAY)
     val diffDaysLastMonth = kotlin.math.abs(day1ThisMonth.dayOfWeek.isoDayNumber - 1)
-    val weekdays = getWeekDays(startFromSunday)
+    val weekdays = remember { getWeekDays(startFromSunday) }
 
     CalendarCustomLayout(modifier = modifier) {
         weekdays.forEach {
@@ -225,9 +225,10 @@ fun CalendarView(
     Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(16.dp))
         Box(modifier = Modifier.fillMaxWidth()) {
-            val monthYearLabel =
+            val monthYearLabel = remember {
                 month.month.name.lowercase().replaceFirstChar { it.uppercaseChar() } +
                         " " + month.year
+            }
             Text(
                 text = monthYearLabel,
                 style = MaterialTheme.typography.bodyLarge,

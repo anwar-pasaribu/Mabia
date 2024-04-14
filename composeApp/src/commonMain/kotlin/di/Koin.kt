@@ -20,6 +20,7 @@ import service.GenerativeAiService
 import ui.viewmodel.EmojiListScreenViewModel
 import ui.viewmodel.HistoryScreenViewModel
 import ui.viewmodel.MainViewModel
+import ui.viewmodel.MoodStateScreenViewModel
 
 fun letsKoinStart() {
     stopKoin()
@@ -36,7 +37,6 @@ fun appModule() = module {
     }
     single {
         EmojiListScreenViewModel(
-            savedStateHolder = it.get(),
             keyValueStorageRepository = get(),
             sqlStorageRepository = get()
         )
@@ -51,6 +51,10 @@ fun appModule() = module {
 
     single {
         HistoryScreenViewModel(sqlStorageRepository = get(), aiService = get())
+    }
+
+    single {
+        MoodStateScreenViewModel(sqlStorageRepository = get())
     }
 }
 

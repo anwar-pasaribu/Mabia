@@ -52,8 +52,11 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import mabia.composeapp.generated.resources.Res
 import mabia.composeapp.generated.resources.weekdays
@@ -64,8 +67,13 @@ import ui.extension.delayedAlpha
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun WeekView(modifier: Modifier = Modifier, onDateClick: () -> Unit) {
-    val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+fun WeekView(
+    modifier: Modifier = Modifier,
+    onMonthNameClick: () -> Unit,
+    onWeekDayClick: (Long) -> Unit,
+) {
+    val tz = TimeZone.currentSystemDefault()
+    val today = Clock.System.todayIn(tz)
     Surface(
         modifier = modifier,
         color = Color.Transparent,
@@ -89,7 +97,7 @@ fun WeekView(modifier: Modifier = Modifier, onDateClick: () -> Unit) {
                 val isFuture = it > todayDayOfWeek
                 val todayDayOfMonth = today.dayOfMonth
                 val dayOfMonth = todayDayOfMonth - (todayDayOfWeek - it)
-
+                val monthSection = it == 0
                 val upperLabel = if (it == 0) {
                     today.year.toString()
                 } else {
@@ -106,7 +114,20 @@ fun WeekView(modifier: Modifier = Modifier, onDateClick: () -> Unit) {
                         .weight(1f)
                         .clip(RoundedCornerShape(8.dp))
                         .alpha(if (isFuture) .4F else 1F)
-                        .clickable (enabled = !isFuture) { onDateClick() },
+                        .clickable(enabled = !isFuture) {
+                            if (monthSection) {
+                                onMonthNameClick()
+                            } else {
+                                val nowTimeStamp = Clock.System.now().toLocalDateTime(tz).time
+                                val selectedDate = LocalDate(
+                                    year = today.year,
+                                    month = today.month,
+                                    dayOfMonth = dayOfMonth
+                                )
+                                val dateTime = LocalDateTime(date = selectedDate, time = nowTimeStamp)
+                                onWeekDayClick(dateTime.toInstant(tz).toEpochMilliseconds())
+                            }
+                        },
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -128,7 +149,7 @@ fun WeekView(modifier: Modifier = Modifier, onDateClick: () -> Unit) {
                     if (isToday) {
                         Box(
                             modifier = Modifier.background(
-                                MaterialTheme.colorScheme.onPrimary,
+                                MaterialTheme.colorScheme.inversePrimary,
                                 RoundedCornerShape(1.5.dp)
                             ).width(16.dp).height(3.dp),
                         )

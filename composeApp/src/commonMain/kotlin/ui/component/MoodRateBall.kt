@@ -50,7 +50,11 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun MoodRateView(modifier: Modifier = Modifier, moodRate: Int = -1, loadingState: Boolean = true) {
+fun MoodRateView(
+    modifier: Modifier = Modifier,
+    moodRate: Int = -1,
+    loadingState: Boolean = true
+) {
 
     val isLoading = remember { mutableStateOf(loadingState) }
 
