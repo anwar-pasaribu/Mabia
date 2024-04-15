@@ -7,6 +7,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -190,9 +192,26 @@ fun EmojiListScreen(
 
             EmojiFlyingUpCanvas(selectedEmojiUnicodeAndOffset.value)
 
+            val showOnboardingFinishHelperClue = selectedEmojiUnicodes.size >= 4 && showOnboardingBottomMenu
+            AnimatedVisibility(
+                visible = showOnboardingFinishHelperClue,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                val interactionSource = remember { MutableInteractionSource() }
+                Box(modifier = Modifier.fillMaxSize().hazeChild(
+                    state = hazeState,
+                    style = HazeMaterials.thin(MaterialTheme.colorScheme.background)
+                ).clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = {}
+                ))
+            }
+
             AnimatedVisibility(
                 modifier = Modifier.align(Alignment.BottomCenter),
-                visible = selectedEmojiUnicodes.size >= 4 && showOnboardingBottomMenu,
+                visible = showOnboardingFinishHelperClue,
                 enter = fadeIn() + slideInVertically(initialOffsetY = { it /* BOTTOM to UP*/ }),
                 exit = fadeOut().plus(slideOutVertically(targetOffsetY = { it }))
             ) {
