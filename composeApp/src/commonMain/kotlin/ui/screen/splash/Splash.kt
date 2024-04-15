@@ -48,13 +48,6 @@ fun Splash(launchScreen: (route: String) -> Unit) {
                     .background(Color.LightGray)
             )
         } else {
-//            Image(
-//                modifier = Modifier.fillMaxSize(),
-//                bitmap = imageResource(resource = Res.drawable.gradient_07),
-//                contentScale = ContentScale.Crop,
-//                contentDescription = "Splash"
-//            )
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -64,7 +57,7 @@ fun Splash(launchScreen: (route: String) -> Unit) {
             ImageWrapper(
                 modifier = Modifier.size(288.dp),
                 resource = Res.drawable.ic_logo_mabia_normal_eye,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                 contentScale = ContentScale.Fit,
                 contentDescription = "App Logo"
             )
