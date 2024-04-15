@@ -8,7 +8,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -38,11 +38,11 @@ fun GlassyButton(
         label = "BouncingClickableOpacityTransition"
     )
     val shadow by animationTransition.animateDp(
-        targetValueByState = { pressed -> if (pressed) 8.dp else 16.dp },
+        targetValueByState = { pressed -> if (pressed) 2.dp else 16.dp },
         label = "BouncingClickableShadowTransition"
     )
 
-    ElevatedButton(
+    Button(
         modifier = modifier.then(
             Modifier.defaultMinSize(minWidth = 256.dp).graphicsLayer {
                 this.scaleX = scaleFactor
@@ -50,7 +50,7 @@ fun GlassyButton(
                 this.alpha = opacity
                 this.shape = RoundedCornerShape(percent = 50)
                 this.shadowElevation = shadow.value
-                this.spotShadowColor = DefaultShadowColor.copy(alpha = .35F)
+                this.spotShadowColor = DefaultShadowColor.copy(alpha = .85F)
             }
         ),
         enabled = enabled,
