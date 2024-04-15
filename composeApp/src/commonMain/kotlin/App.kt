@@ -1,6 +1,4 @@
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -43,14 +41,7 @@ fun App(shouldDarkTheme: Boolean = isSystemInDarkTheme()) {
                         exitTargetContentZIndex = 1f,
                     )
                 ) {
-                    scene(
-                        ScreenRoute.SPLASH, navTransition = NavTransition(
-                            createTransition = EnterTransition.None,
-                            destroyTransition = ExitTransition.None,
-                            pauseTransition = ExitTransition.None,
-                            resumeTransition = EnterTransition.None,
-                        )
-                    ) {
+                    scene(ScreenRoute.SPLASH) {
                         Splash { screenRoute ->
                             navigator.navigate(
                                 screenRoute,
@@ -62,9 +53,7 @@ fun App(shouldDarkTheme: Boolean = isSystemInDarkTheme()) {
                             )
                         }
                     }
-                    scene(
-                        route = ScreenRoute.HOME,
-                    ) {
+                    scene(route = ScreenRoute.HOME) {
                         EmojiListScreen(
                             onScreenStateChanged = {
                                 navigator.navigate(ScreenRoute.CONGRATULATE)
