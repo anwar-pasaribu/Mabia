@@ -6,11 +6,14 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
+import config.PlatformType
 import org.jetbrains.skia.Image
 import java.util.UUID
 
 class JVMPlatform: Platform {
     override val name: String = "Java ${System.getProperty("java.version")}"
+    override val type: PlatformType
+        get() = PlatformType.DESKTOP
 }
 
 actual fun getPlatform(): Platform = JVMPlatform()

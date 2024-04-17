@@ -1,3 +1,4 @@
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -5,12 +6,15 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import config.PlatformType
 import org.jetbrains.skia.Image
 import platform.Foundation.NSUUID
 import platform.UIKit.UIDevice
 
 class IOSPlatform: Platform {
     override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
+    override val type: PlatformType
+        get() = PlatformType.IOS
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()
@@ -41,4 +45,9 @@ actual fun getScreenSizeInfo(): ScreenSizeInfo {
 
 @Composable
 actual fun PlayHapticAndSound(trigger: Any) {
+}
+
+@Composable
+actual fun MoodRateDisplay(moodRate: Int) {
+
 }
