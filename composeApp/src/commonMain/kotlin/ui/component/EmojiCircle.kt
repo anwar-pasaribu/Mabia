@@ -34,6 +34,7 @@ fun RandomEmojiCircularLayout() {
     // Draw the emoji at the calculated position
     val textMeasure = rememberTextMeasurer()
 
+
     Box(modifier = Modifier.fillMaxSize()) {
         Canvas(modifier = Modifier.fillMaxSize().background(Color.Black).scale(1.7F)) {
 

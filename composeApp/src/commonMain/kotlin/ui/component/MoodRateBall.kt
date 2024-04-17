@@ -1,5 +1,6 @@
 package ui.component
 
+import MoodRateDisplay
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.EaseOutCirc
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -21,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,7 +38,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import config.PlatformType
 import data.EmojiList
+import getPlatform
 import kotlinx.collections.immutable.toImmutableList
 import mabia.composeapp.generated.resources.Res
 import mabia.composeapp.generated.resources.bad
@@ -184,8 +186,12 @@ fun MoodRateView(
                             shape = CircleShape
                         )
                 ) {
-                    Text(text = "$moodRate", modifier = Modifier.align(Alignment.Center))
-                    val imgRes = when(moodRate) {
+                    if (getPlatform().type == PlatformType.ANDROID) {
+                        Box(modifier = Modifier.align(Alignment.Center)) {
+                            MoodRateDisplay(moodRate)
+                        }
+                    } else {
+                        val imgRes = when (moodRate) {
                             EmojiList.MOOD_1 -> Res.drawable.very_good
                             EmojiList.MOOD_2 -> Res.drawable.good
                             EmojiList.MOOD_3 -> Res.drawable.good
@@ -194,12 +200,13 @@ fun MoodRateView(
                             EmojiList.MOOD_6 -> Res.drawable.bad
                             EmojiList.MOOD_7 -> Res.drawable.very_bad
                             else -> Res.drawable.neutral
+                        }
+                        ImageWrapper(
+                            modifier = Modifier.align(Alignment.Center).size(128.dp),
+                            resource = imgRes,
+                            contentDescription = moodRate.toString()
+                        )
                     }
-                    ImageWrapper(
-                        modifier = Modifier.align(Alignment.Center).size(128.dp),
-                        resource = imgRes,
-                        contentDescription = moodRate.toString()
-                    )
                 }
                 Box(
                     modifier = Modifier

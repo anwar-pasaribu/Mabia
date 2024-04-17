@@ -62,6 +62,7 @@ object EmojiList {
             "\uD83D\uDE35", // 😵 Dizzy Face
             "\uD83D\uDE36", // 😶 Face Without Mouth
             "\uD83D\uDE37", // 😷 Face with Medical Mask
+            "\uD83D\uDE2E\u200D\uD83D\uDCA8", // 😮‍💨face exhaling
             "\uD83D\uDE38", // 😸 Grinning Cat Face
             "\uD83D\uDE39", // 😹 Cat with Tears of Joy
             "\uD83D\uDE3A", // 😺 Smiling Cat Face
