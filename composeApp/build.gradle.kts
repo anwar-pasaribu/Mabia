@@ -63,6 +63,8 @@ kotlin {
 
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.7.3"))
             implementation("com.google.firebase:firebase-crashlytics")
+
+            implementation(libs.lottie.compose)
         }
 //        iosMain.dependencies {
 //        }
