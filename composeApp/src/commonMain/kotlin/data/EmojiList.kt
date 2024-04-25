@@ -1,5 +1,7 @@
 package data
 
+import androidx.compose.ui.graphics.Color
+import kotlinx.collections.immutable.toImmutableList
 import ui.screen.emojis.model.EmojiUiModel
 
 object EmojiList {
@@ -129,6 +131,17 @@ object EmojiList {
         7 to "Very Unpleasant", // Very Unpleasant
     )
 
+    val moodPleasantnessEmojiMapping = mapOf(
+        -1 to "\uD83E\uDEE5",
+        1 to "\uD83D\uDE0D", // Very Pleasant
+        2 to "\uD83D\uDE03", // Grinning Face with Big Eyes
+        3 to "\uD83D\uDE00", // Grinning Face
+        4 to "\uD83D\uDE10", // Neutral Face
+        5 to "\uD83D\uDE14", // 😔 Pensive Face
+        6 to "\uD83D\uDE29", // 😩 Weary Face
+        7 to "\uD83D\uDE2B", // 😫 Very Unpleasant
+    )
+
     val MOOD_UNKNOWN = -1
     val MOOD_1 = 1
     val MOOD_2 = 2
@@ -249,17 +262,23 @@ object EmojiList {
         "\uD83E\uDDDE" to 4, // 🧑‍🦰‍💼 Person with Red Hair: Business Suit
     )
 
-    val emojiList2 by lazy {
-        listOf(
-            "\uD83E\uDDE1", // 🧑‍🦱‍🎤 Person with Curly Hair: Tuxedo
-            "\uD83E\uDDE2", // 🧑‍🦰‍🎤 Person with Red Hair: Tuxedo
-            "\uD83E\uDDE3", // 🧑‍🦳‍🎤 Person with White Hair: Tuxedo
-            "\uD83E\uDDE4", // 🧑‍🦲‍🎤 Person with Bald: Tuxedo
-            "\uD83E\uDDE5", // 🧑‍🦱‍🎨 Person with Curly Hair: Artist
-            "\uD83E\uDDE6", // 🧑‍🦰‍🎨 Person with Red Hair: Artist
-            "\uD83E\uDDE7", // 🧑‍🦳‍🎨 Person with White Hair: Artist
-            "\uD83E\uDDE8", // 🧑‍🦲‍🎨 Person with Bald: Artist
-        )
+    fun getBackgroundColorForMood(moodRating: Int): List<Color> {
+        return when (moodRating) {
+            EmojiList.MOOD_1 -> listOf(
+                Color(0xFF50C878),
+                Color(0xFF00755E)
+            ) // Vibrant and modern color for very pleasant mood
+            EmojiList.MOOD_2 -> listOf(Color(0xFF71C5E8), Color(0xFF0C81E6)) // Pleasant mood
+            EmojiList.MOOD_3 -> listOf(Color(0xFFFFD700), Color(0xFFFFA500)) // Slightly pleasant mood
+            EmojiList.MOOD_4 -> listOf(Color(0xFFFFFFFF), Color(0xFFD3D3D3)) // Neutral mood
+            EmojiList.MOOD_5 -> listOf(Color(0xFFFF6347), Color(0xFFCD5C5C)) // Slightly unpleasant mood
+            EmojiList.MOOD_6 -> listOf(Color(0xFF8B0000), Color(0xFFB22222)) // Unpleasant mood
+            EmojiList.MOOD_7 -> listOf(Color(0xFF696969), Color(0xFF363636)) // Very unpleasant mood
+            else -> listOf(
+                Color(0xFFE0E0E0),
+                Color(0xFFBEBEBE)
+            ) // Default grayish gradient for unknown mood
+        }.toImmutableList()
     }
 
     fun generateEmojiForUI(): List<EmojiUiModel> = emojiList.mapIndexed { index, emojiItem ->

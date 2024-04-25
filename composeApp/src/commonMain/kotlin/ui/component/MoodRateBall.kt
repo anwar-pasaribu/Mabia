@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import config.PlatformType
 import data.EmojiList
 import getPlatform
-import kotlinx.collections.immutable.toImmutableList
 import mabia.composeapp.generated.resources.Res
 import mabia.composeapp.generated.resources.bad
 import mabia.composeapp.generated.resources.good
@@ -61,11 +60,11 @@ fun MoodRateView(
     val isLoading = remember { mutableStateOf(loadingState) }
 
     var bgColor by remember {
-        mutableStateOf(getBackgroundColorForMood(moodRate))
+        mutableStateOf(EmojiList.getBackgroundColorForMood(moodRate))
     }
 
     LaunchedEffect(moodRate, loadingState) {
-        bgColor = getBackgroundColorForMood(moodRate)
+        bgColor = EmojiList.getBackgroundColorForMood(moodRate)
         isLoading.value = loadingState
     }
     val loadingTransition = updateTransition(isLoading, label = "LoadingTransition")
@@ -84,12 +83,12 @@ fun MoodRateView(
     val updatedColorAnimVal1 by updatedTransition.animateColor(
         transitionSpec = { tween(durationMillis = 2000, easing = EaseOutCirc) }, label = "color1"
     ) {
-        getBackgroundColorForMood(it)[0]
+        EmojiList.getBackgroundColorForMood(it)[0]
     }
     val updatedColorAnimVal2 by updatedTransition.animateColor(
         transitionSpec = { tween(durationMillis = 2000, easing = EaseOutCirc) }, label = "color2"
     ) {
-        getBackgroundColorForMood(it)[1]
+        EmojiList.getBackgroundColorForMood(it)[1]
     }
 
     val colorAnimation = rememberInfiniteTransition(label = "PulsatingMoodRate")
@@ -232,23 +231,4 @@ fun MoodRateView(
             }
         }
     }
-}
-
-private fun getBackgroundColorForMood(moodRating: Int): List<Color> {
-    return when (moodRating) {
-        EmojiList.MOOD_1 -> listOf(
-            Color(0xFF50C878),
-            Color(0xFF00755E)
-        ) // Vibrant and modern color for very pleasant mood
-        EmojiList.MOOD_2 -> listOf(Color(0xFF71C5E8), Color(0xFF0C81E6)) // Pleasant mood
-        EmojiList.MOOD_3 -> listOf(Color(0xFFFFD700), Color(0xFFFFA500)) // Slightly pleasant mood
-        EmojiList.MOOD_4 -> listOf(Color(0xFFFFFFFF), Color(0xFFD3D3D3)) // Neutral mood
-        EmojiList.MOOD_5 -> listOf(Color(0xFFFF6347), Color(0xFFCD5C5C)) // Slightly unpleasant mood
-        EmojiList.MOOD_6 -> listOf(Color(0xFF8B0000), Color(0xFFB22222)) // Unpleasant mood
-        EmojiList.MOOD_7 -> listOf(Color(0xFF696969), Color(0xFF363636)) // Very unpleasant mood
-        else -> listOf(
-            Color(0xFFE0E0E0),
-            Color(0xFFBEBEBE)
-        ) // Default grayish gradient for unknown mood
-    }.toImmutableList()
 }
