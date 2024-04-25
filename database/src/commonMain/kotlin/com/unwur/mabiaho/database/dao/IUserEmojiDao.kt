@@ -5,7 +5,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface IUserEmojiDao {
     fun getUserEmojiByDate(date: Long): Flow<List<EmojiModel>>
-    fun getUserEmojiByTimeStampRange(start: Long, end: Long): Flow<List<EmojiModel>>
+    fun getUserEmojiByTimeStampRangeObservable(start: Long, end: Long): Flow<List<EmojiModel>>
+    fun getUserEmojiByTimeStampRange(start: Long, end: Long): List<EmojiModel>
     suspend fun getAllEmoji(): Flow<List<EmojiModel>>
     suspend fun insertEmoji(emojiUnicode: String, timestamp: Long)
 }
