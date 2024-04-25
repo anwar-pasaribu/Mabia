@@ -2,6 +2,7 @@ package ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -37,34 +38,42 @@ private fun CalendarCell(
     signal: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    cellExtraContent: @Composable BoxScope.() -> Unit = {}
 ) {
     val circleShape = remember { CircleShape }
     Box(
         modifier = modifier
-            .bouncingClickable { onClick() }
             .aspectRatio(1f)
             .fillMaxSize()
-            .padding(2.dp)
-            .clip(circleShape)
-            .background(
-                color = MaterialTheme.colorScheme.surfaceContainerHighest,
-            )
     ) {
-        if (signal) {
-            Box(
-                modifier = Modifier
-                    .aspectRatio(1f)
-                    .fillMaxSize()
-                    .background(
-                        color = MaterialTheme.colorScheme.errorContainer
-                    )
+        Box(
+            modifier = modifier
+                .bouncingClickable { onClick() }
+                .aspectRatio(1f)
+                .fillMaxSize()
+                .padding(2.dp)
+                .clip(circleShape)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                )
+        ) {
+            if (signal) {
+                Box(
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .fillMaxSize()
+                        .background(
+                            color = MaterialTheme.colorScheme.errorContainer
+                        )
+                )
+            }
+            Text(
+                text = cellText,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.align(Alignment.Center)
             )
         }
-        Text(
-            text = cellText,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            modifier = Modifier.align(Alignment.Center)
-        )
+        cellExtraContent()
     }
 }
 
@@ -102,6 +111,7 @@ private fun CalendarGrid(
     onClick: (LocalDate) -> Unit,
     startFromSunday: Boolean,
     modifier: Modifier = Modifier,
+    cellExtraContent: @Composable BoxScope.() -> Unit = {}
 ) {
     val year = date.first().first.year
     val monthNumber = date.first().first.monthNumber
@@ -120,22 +130,24 @@ private fun CalendarGrid(
             Spacer(modifier = Modifier.fillMaxSize())
         }
 
-        for (day in 1..if (startFromSunday) dayOfMonth else dayOfMonth - 1) {
-            CalendarCell(
-                cellText = day.toString(),
-                onClick = {
-                    onClick(
-                        LocalDate(year = year, monthNumber = monthNumber, dayOfMonth = day)
-                    )
-                }
-            )
-        }
+//        for (day in 1..if (startFromSunday) dayOfMonth else dayOfMonth - 1) {
+//            CalendarCell(
+//                cellText = day.toString(),
+//                onClick = {
+//                    onClick(
+//                        LocalDate(year = year, monthNumber = monthNumber, dayOfMonth = day)
+//                    )
+//                },
+//                cellExtraContent = cellExtraContent
+//            )
+//        }
 
         date.forEach {
             CalendarCell(
                 cellText = it.first.dayOfMonth.toString(),
                 signal = it.second,
-                onClick = { onClick(it.first) }
+                onClick = { onClick(it.first) },
+                cellExtraContent = cellExtraContent
             )
         }
     }
@@ -209,26 +221,22 @@ private fun CalendarCustomLayout(
 }
 
 
-
 @Composable
 fun CalendarView(
     month: LocalDate,
     date: ImmutableList<Pair<LocalDate, Boolean>>?,
-    displayNext: Boolean = false,
-    displayPrev: Boolean = false,
-    onClickNext: () -> Unit = {},
-    onClickPrev: () -> Unit = {},
     onClick: (LocalDate) -> Unit,
     startFromSunday: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cellExtraContent: @Composable BoxScope.() -> Unit = {}
 ) {
+    val monthYearLabel = remember {
+        month.month.name.lowercase().replaceFirstChar { it.uppercaseChar() } +
+                " " + month.year
+    }
     Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(16.dp))
         Box(modifier = Modifier.fillMaxWidth()) {
-            val monthYearLabel = remember {
-                month.month.name.lowercase().replaceFirstChar { it.uppercaseChar() } +
-                        " " + month.year
-            }
             Text(
                 text = monthYearLabel,
                 style = MaterialTheme.typography.bodyLarge,
@@ -242,6 +250,7 @@ fun CalendarView(
                 date = date,
                 onClick = onClick,
                 startFromSunday = startFromSunday,
+                cellExtraContent = cellExtraContent
             )
         }
     }
