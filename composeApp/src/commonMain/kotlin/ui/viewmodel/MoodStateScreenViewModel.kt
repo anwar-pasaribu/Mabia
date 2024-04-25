@@ -46,7 +46,7 @@ class MoodStateScreenViewModel(
             emojiUnicodeList.clear()
             delay(300)
             sqlStorageRepository
-                .getEmojiByTimestampRange(startTimeStampMillis, untilTimeStampMillis)
+                .getEmojiByTimestampRangeObservable(startTimeStampMillis, untilTimeStampMillis)
                 .collect { emojiList ->
                     emojiListStateFlow.emit(emojiList.fastMap { emoji ->
                         if (emojiUnicodeList.containsKey(emoji.emojiUnicode)) {
