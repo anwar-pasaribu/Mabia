@@ -3,8 +3,10 @@ package ui.viewmodel
 import data.EmojiList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 import repo.ISqlStorageRepository
@@ -21,7 +23,9 @@ class EmojiListScreenViewModel(
 
     fun loadAllEmoji() {
         viewModelScope.launch {
-            emojiListStateFlow.emit(EmojiList.generateEmojiForUI().toImmutableList())
+            withContext(Dispatchers.Default) {
+                emojiListStateFlow.emit(EmojiList.generateEmojiForUI().toImmutableList())
+            }
         }
     }
 
