@@ -45,17 +45,9 @@ import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
-import kotlinx.datetime.todayIn
 import org.koin.compose.koinInject
-import ui.component.CalendarView
 import ui.component.ChatBubbleItem
+import ui.component.EmojiCalendarView
 import ui.screen.ai.model.ChatMessage
 import ui.screen.moodRate.MoodStateBottomSheet
 import ui.viewmodel.HistoryScreenViewModel
@@ -71,10 +63,8 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
     val calendarList by viewModel.calenderListStateFlow.collectAsState()
 
     val hazeState = remember { HazeState() }
-    var formattedSelectedDate by remember { mutableStateOf("") }
     val lazyColumnListState = rememberLazyListState()
 
-    var selectedDateTimeStamp by remember { mutableStateOf(0L) }
     var showSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -86,7 +76,7 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
             onDismiss = {
                 showSheet = false
             },
-            selectedDateTimeStamp = selectedDateTimeStamp,
+            selectedDateTimeStamp = viewModel.selectedTimeStamp.collectAsState().value,
         )
     }
 
@@ -125,11 +115,6 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
         },
     ) { contentPadding ->
 
-        // TODO Date logic should start date from user first join
-        val today: LocalDate = Clock.System.todayIn(
-            TimeZone.currentSystemDefault()
-        )
-
         LaunchedEffect(calendarList) {
             lazyColumnListState.scrollToItem(calendarList.size)
         }
@@ -152,32 +137,13 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
 
                 lazyColumnItems(
                     items = calendarList,
-                    key = { it.dayOfYear }
-                ) { dateItem ->
-                    CalendarView(
-                        month = dateItem,
-                        date = listOf(
-                            dateItem to (dateItem.dayOfMonth == today.dayOfMonth),
-                        ).toImmutableList(),
+                    key = { it.month.monthNumber }
+                ) { emojiCalendarItem ->
+                    EmojiCalendarView(
+                        monthEmojiData = emojiCalendarItem,
                         onClick = { selectedDate ->
                             showSheet = true
-                            val tz = TimeZone.currentSystemDefault()
-                            val nowTimeStamp = Clock.System.now().toLocalDateTime(tz).time
-                            val dateTime = LocalDateTime(date = selectedDate, time = nowTimeStamp)
-                            viewModel.getEmojiByTimeStampRange(
-                                dateTime.toInstant(tz).toEpochMilliseconds()
-                            )
-
-                            selectedDateTimeStamp = dateTime.toInstant(tz).toEpochMilliseconds()
-
-                            val shortDayName = dateTime.dayOfWeek.name.lowercase()
-                                .replaceFirstChar { it.uppercaseChar() }
-                            val monthName =
-                                dateTime.month.name.lowercase()
-                                    .replaceFirstChar { it.uppercaseChar() }
-                            formattedSelectedDate = shortDayName + ", " +
-                                    dateTime.dayOfMonth.toString() + " " + monthName + " " +
-                                    dateTime.year
+                            viewModel.getEmojiByTimeStampRange(selectedDate.day)
                         },
                     )
                 }
