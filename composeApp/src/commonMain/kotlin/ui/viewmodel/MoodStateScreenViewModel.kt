@@ -2,7 +2,6 @@ package ui.viewmodel
 
 import androidx.compose.ui.util.fastMap
 import data.EmojiList
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,7 +43,6 @@ class MoodStateScreenViewModel(
             _moodRate.value = EmojiList.MOOD_UNKNOWN
             emojiListStateFlow.emit(emptyList())
             emojiUnicodeList.clear()
-            delay(300)
             sqlStorageRepository
                 .getEmojiByTimestampRangeObservable(startTimeStampMillis, untilTimeStampMillis)
                 .collect { emojiList ->
