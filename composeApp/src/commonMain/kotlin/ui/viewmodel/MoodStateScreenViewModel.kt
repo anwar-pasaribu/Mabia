@@ -16,10 +16,12 @@ import kotlinx.datetime.toLocalDateTime
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 import repo.ISqlStorageRepository
+import repo.KeyValueStorageRepository
 import ui.screen.emojis.model.EmojiUiModel
 import kotlin.math.roundToInt
 
 class MoodStateScreenViewModel(
+    private val kvsRepo: KeyValueStorageRepository,
     private val sqlStorageRepository: ISqlStorageRepository,
 ) : ViewModel() {
 
@@ -27,6 +29,9 @@ class MoodStateScreenViewModel(
     val calenderListStateFlow = MutableStateFlow(emptyList<LocalDate>())
     private val _moodRate = MutableStateFlow(EmojiList.MOOD_UNKNOWN)
     val moodRate: StateFlow<Int> = _moodRate.asStateFlow()
+
+    private val shouldShowMoodRateOnboarding = kvsRepo.onboardingFinished() && !kvsRepo.moodRateLearned
+    val showMoodRateForFirstTimer = MutableStateFlow(shouldShowMoodRateOnboarding)
 
     private val emojiUnicodeList = hashMapOf<String, Int>()
 

@@ -38,15 +38,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import config.PlatformType
 import data.EmojiList
-import getPlatform
-import mabia.composeapp.generated.resources.Res
-import mabia.composeapp.generated.resources.bad
-import mabia.composeapp.generated.resources.good
-import mabia.composeapp.generated.resources.neutral
-import mabia.composeapp.generated.resources.very_bad
-import mabia.composeapp.generated.resources.very_good
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 @OptIn(ExperimentalResourceApi::class)
@@ -185,26 +177,8 @@ fun MoodRateView(
                             shape = CircleShape
                         )
                 ) {
-                    if (getPlatform().type == PlatformType.ANDROID) {
-                        Box(modifier = Modifier.align(Alignment.Center)) {
-                            MoodRateDisplay(moodRate)
-                        }
-                    } else {
-                        val imgRes = when (moodRate) {
-                            EmojiList.MOOD_1 -> Res.drawable.very_good
-                            EmojiList.MOOD_2 -> Res.drawable.good
-                            EmojiList.MOOD_3 -> Res.drawable.good
-                            EmojiList.MOOD_4 -> Res.drawable.neutral
-                            EmojiList.MOOD_5 -> Res.drawable.bad
-                            EmojiList.MOOD_6 -> Res.drawable.bad
-                            EmojiList.MOOD_7 -> Res.drawable.very_bad
-                            else -> Res.drawable.neutral
-                        }
-                        ImageWrapper(
-                            modifier = Modifier.align(Alignment.Center).size(128.dp),
-                            resource = imgRes,
-                            contentDescription = moodRate.toString()
-                        )
+                    Box(modifier = Modifier.align(Alignment.Center)) {
+                        MoodRateDisplay(moodRate)
                     }
                 }
                 Box(

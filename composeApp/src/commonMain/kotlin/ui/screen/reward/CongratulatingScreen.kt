@@ -33,7 +33,7 @@ import ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun CongratulateScreen(
+fun CongratulatingScreen(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit
 ) {
@@ -104,7 +104,7 @@ fun CongratulateScreen(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 200.dp),
             buttonText = {
-                Text(text = "Kembali ke Home", style = MaterialTheme.typography.labelLarge)
+                Text(text = "Lanjut", style = MaterialTheme.typography.labelLarge)
             }
         ) {
             viewModel.saveFinishedOnboarding()

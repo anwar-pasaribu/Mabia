@@ -103,20 +103,6 @@ object EmojiList {
             "\uD83E\uDDCE", // 🧎 Person Kneeling
             "\uD83E\uDDCF", // 🧏 Person Standing: Medium-Light Skin Tone
             "\uD83E\uDDD0", // 🧐 Face with Monocle
-            "\uD83E\uDDD1", // 🧑‍🦱 Person: Curly Hair
-            "\uD83E\uDDD2", // 🧑‍🦰 Person: Red Hair
-            "\uD83E\uDDD3", // 🧑‍🦳 Person: White Hair
-            "\uD83E\uDDD4", // 🧑‍🦲 Person: Bald
-            "\uD83E\uDDD5", // 🧑‍🦱‍👓 Person with Curly Hair: Glasses
-            "\uD83E\uDDD6", // 🧑‍🦰‍👓 Person with Red Hair: Glasses
-            "\uD83E\uDDD7", // 🧑‍🦳‍👓 Person with White Hair: Glasses
-            "\uD83E\uDDD8", // 🧑‍🦲‍👓 Person with Bald: Glasses
-            "\uD83E\uDDD9", // 🧑‍🦱‍🔬 Person with Curly Hair: Lab Coat
-            "\uD83E\uDDDA", // 🧑‍🦰‍🔬 Person with Red Hair: Lab Coat
-            "\uD83E\uDDDB", // 🧑‍🦳‍🔬 Person with White Hair: Lab Coat
-            "\uD83E\uDDDC", // 🧑‍🦲‍🔬 Person with Bald: Lab Coat
-            "\uD83E\uDDDD", // 🧑‍🦱‍💼 Person with Curly Hair: Business Suit
-            "\uD83E\uDDDE", // 🧑‍🦰‍💼 Person with Red Hair: Business Suit
         )
     }
 
@@ -132,7 +118,7 @@ object EmojiList {
     )
 
     val moodPleasantnessEmojiMapping = mapOf(
-        -1 to "\uD83E\uDEE5",
+        -1 to "",
         1 to "\uD83D\uDE0D", // Very Pleasant
         2 to "\uD83D\uDE03", // Grinning Face with Big Eyes
         3 to "\uD83D\uDE00", // Grinning Face
@@ -246,20 +232,6 @@ object EmojiList {
         "\uD83E\uDDCE" to 2, // 🧎 Person Kneeling
         "\uD83E\uDDCF" to 2, // 🧏 Person Standing: Medium-Light Skin Tone
         "\uD83E\uDDD0" to 3, // 🧐 Face with Monocle
-        "\uD83E\uDDD1" to 4, // 🧑‍🦱 Person: Curly Hair
-        "\uD83E\uDDD2" to 4, // 🧑‍🦰 Person: Red Hair
-        "\uD83E\uDDD3" to 4, // 🧑‍🦳 Person: White Hair
-        "\uD83E\uDDD4" to 4, // 🧑‍🦲 Person: Bald
-        "\uD83E\uDDD5" to 4, // 🧑‍🦱‍👓 Person with Curly Hair: Glasses
-        "\uD83E\uDDD6" to 4, // 🧑‍🦰‍👓 Person with Red Hair: Glasses
-        "\uD83E\uDDD7" to 4, // 🧑‍🦳‍👓 Person with White Hair: Glasses
-        "\uD83E\uDDD8" to 4, // 🧑‍🦲‍👓 Person with Bald: Glasses
-        "\uD83E\uDDD9" to 4, // 🧑‍🦱‍🔬 Person with Curly Hair: Lab Coat
-        "\uD83E\uDDDA" to 4, // 🧑‍🦰‍🔬 Person with Red Hair: Lab Coat
-        "\uD83E\uDDDB" to 4, // 🧑‍🦳‍🔬 Person with White Hair: Lab Coat
-        "\uD83E\uDDDC" to 4, // 🧑‍🦲‍🔬 Person with Bald: Lab Coat
-        "\uD83E\uDDDD" to 4, // 🧑‍🦱‍💼 Person with Curly Hair: Business Suit
-        "\uD83E\uDDDE" to 4, // 🧑‍🦰‍💼 Person with Red Hair: Business Suit
     )
 
     fun getBackgroundColorForMood(moodRating: Int): List<Color> {

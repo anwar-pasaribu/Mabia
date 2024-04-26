@@ -1,4 +1,4 @@
-package ui.viewmodel
+package ui.screen.emojis
 
 import data.EmojiList
 import kotlinx.collections.immutable.persistentListOf
@@ -14,12 +14,16 @@ import repo.KeyValueStorageRepository
 import ui.screen.emojis.model.EmojiUiModel
 
 class EmojiListScreenViewModel(
-    private val keyValueStorageRepository: KeyValueStorageRepository,
+    private val kvsRepo: KeyValueStorageRepository,
     private val sqlStorageRepository: ISqlStorageRepository,
 ): ViewModel() {
 
+    private val shouldShowMoodRateOnboarding = kvsRepo.onboardingFinished() && !kvsRepo.moodRateLearned
+
     val emojiListStateFlow = MutableStateFlow(emptyList<EmojiUiModel>())
-    val showOnboardingBottomMenu = MutableStateFlow(!keyValueStorageRepository.onboardingFinished())
+    val showOnboardingBottomMenu = MutableStateFlow(!kvsRepo.onboardingFinished())
+    val showMoodRateForFirstTimer = MutableStateFlow(shouldShowMoodRateOnboarding)
+
 
     fun loadAllEmoji() {
         viewModelScope.launch {
@@ -30,7 +34,7 @@ class EmojiListScreenViewModel(
     }
 
     fun getGreeting(): String {
-        return if (!keyValueStorageRepository.onboardingFinished()) {
+        return if (!kvsRepo.onboardingFinished()) {
             greetingList().first()
         } else {
             greetingList().random()
@@ -39,6 +43,7 @@ class EmojiListScreenViewModel(
 
     fun setOnboardingAlmostFinished() {
         showOnboardingBottomMenu.value = false
+        kvsRepo.saveOnboardingFinished()
     }
 
     fun saveSelectedEmojiUnicode(emojiUnicode: String) {

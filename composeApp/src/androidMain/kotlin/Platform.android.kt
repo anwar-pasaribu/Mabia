@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import config.PlatformType
@@ -134,7 +135,10 @@ private fun ComposeLottieAnimation(moodRate: Int, play: Boolean, onFinished: () 
     val composition by rememberLottieComposition(
         LottieCompositionSpec.JsonString(lottieJsonString)
     )
-    val progress by animateLottieCompositionAsState(composition = composition, isPlaying = play)
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever
+    )
     LottieAnimation(
         modifier = Modifier.size(128.dp),
         composition = composition,

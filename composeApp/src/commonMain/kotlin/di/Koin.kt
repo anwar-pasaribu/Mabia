@@ -17,7 +17,7 @@ import repo.KeyValueStorageRepository
 import repo.KeyValueStorageRepositoryImpl
 import repo.SqlStorageRepositoryImpl
 import service.GenerativeAiService
-import ui.viewmodel.EmojiListScreenViewModel
+import ui.screen.emojis.EmojiListScreenViewModel
 import ui.viewmodel.HistoryScreenViewModel
 import ui.viewmodel.MainViewModel
 import ui.viewmodel.MoodStateScreenViewModel
@@ -37,12 +37,12 @@ fun appModule() = module {
     }
     single {
         EmojiListScreenViewModel(
-            keyValueStorageRepository = get(),
+            kvsRepo = get(),
             sqlStorageRepository = get()
         )
     }
     single {
-        MainViewModel(keyValueStorageRepository = get())
+        MainViewModel(kvsRepo = get())
     }
 
     single {
@@ -54,7 +54,7 @@ fun appModule() = module {
     }
 
     single {
-        MoodStateScreenViewModel(sqlStorageRepository = get())
+        MoodStateScreenViewModel(kvsRepo = get(), sqlStorageRepository = get())
     }
 }
 

@@ -95,6 +95,8 @@ kotlin {
             implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
             implementation("co.touchlab:stately-concurrent-collections:2.0.6")
 
+            implementation("io.github.alexzhirkevich:compottie:1.1.2")
+
         }
 
         desktopMain.dependencies {

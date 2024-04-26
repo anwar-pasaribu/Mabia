@@ -63,7 +63,6 @@ import ui.component.HomeCardDisplay
 import ui.component.MoodGridItem
 import ui.component.WeekView
 import ui.screen.moodRate.MoodStateBottomSheet
-import ui.viewmodel.EmojiListScreenViewModel
 
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class
@@ -92,7 +91,7 @@ fun EmojiListScreen(
         remember { mutableStateOf(MutableStateFlow(Pair("", Offset.Zero))) }
 
     var selectedDateTimeStamp by remember { mutableStateOf(0L) }
-    var showSheet by remember { mutableStateOf(false) }
+    var moodStateBottomSheetStateShowed by remember { mutableStateOf(false) }
 
     if (selectedEmojiUnicode.isNotEmpty()) {
         PlayHapticAndSound(selectedEmojiUnicode)
@@ -102,11 +101,12 @@ fun EmojiListScreen(
         viewModel.loadAllEmoji()
     }
 
-    if (showSheet) {
+    if (moodStateBottomSheetStateShowed) {
         MoodStateBottomSheet(
             onDismiss = {
-                showSheet = false
+                moodStateBottomSheetStateShowed = false
             },
+            showFullScreen = true,
             selectedDateTimeStamp = selectedDateTimeStamp
         )
     }
@@ -137,7 +137,7 @@ fun EmojiListScreen(
                         },
                         onWeekDayClick = {
                             selectedDateTimeStamp = it
-                            showSheet = true
+                            moodStateBottomSheetStateShowed = true
                         }
                     )
                 }
@@ -234,11 +234,11 @@ fun EmojiListScreen(
                     GlassyButton(
                         modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp),
                         buttonText = {
-                            Text(text = "Selesai")
+                            Text(text = "Lihat Mood Kamu")
                         }
                     ) {
+                        moodStateBottomSheetStateShowed = true
                         viewModel.setOnboardingAlmostFinished()
-                        onScreenStateChanged(3)
                     }
                 }
             }

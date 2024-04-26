@@ -90,32 +90,34 @@ private fun EmojiCalendarCell(
 
         cellExtraContent()
 
-        Box(
-            modifier = Modifier
-                .graphicsLayer {
-                    shape = CircleShape
-                    shadowElevation = 8F
-                }
-                .clip(CircleShape)
-                .fillMaxSize(.45F)
-                .zIndex(11F)
-                .background(Color.White, circleShape)
-                .align(Alignment.BottomEnd),
-            contentAlignment = Alignment.Center
-        ) {
+        if (cellEmoji.isNotEmpty()) {
             Box(
                 modifier = Modifier
-                    .background(cellEmojiBubbleColorWithAlpha, circleShape)
-                    .fillMaxSize()
-                    .align(Alignment.Center),
+                    .graphicsLayer {
+                        shape = CircleShape
+                        shadowElevation = 8F
+                    }
+                    .clip(CircleShape)
+                    .fillMaxSize(.45F)
+                    .zIndex(11F)
+                    .background(Color.White, circleShape)
+                    .align(Alignment.BottomEnd),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    modifier = Modifier.wrapContentSize(),
-                    textAlign = TextAlign.Center,
-                    text = cellEmoji,
-                    style = MaterialTheme.typography.labelLarge
-                )
+                Box(
+                    modifier = Modifier
+                        .background(cellEmojiBubbleColorWithAlpha, circleShape)
+                        .fillMaxSize()
+                        .align(Alignment.Center),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        modifier = Modifier.wrapContentSize(),
+                        textAlign = TextAlign.Center,
+                        text = cellEmoji,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
             }
         }
     }
