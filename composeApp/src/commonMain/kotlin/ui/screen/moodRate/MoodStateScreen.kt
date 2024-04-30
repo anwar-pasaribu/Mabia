@@ -238,6 +238,7 @@ private fun EmojiListByDate(
         items(items = emojiHistoryList, key = { it.id }) { item ->
             MoodGridItem(
                 content = item.emojiUnicode,
+                viewOnlyMode = true
             )
         }
 
