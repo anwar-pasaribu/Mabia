@@ -95,9 +95,12 @@ fun MoodRateOnboarding(onCtaAction: () -> Unit) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MoodRatePagerDisplay() {
+fun MoodRatePagerDisplay(
+    selectedMoodStateIndex: Int = 0
+) {
     val moodRateList = (1..7).toList()
     val horizontalPagerState = rememberPagerState(
+        initialPage = if (selectedMoodStateIndex < 0) 0 else selectedMoodStateIndex,
         pageCount = { moodRateList.size }
     )
 

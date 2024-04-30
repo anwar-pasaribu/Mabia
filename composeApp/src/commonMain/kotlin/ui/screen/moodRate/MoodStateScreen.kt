@@ -174,7 +174,9 @@ fun MoodStateScreen(
             ) {
                 if (toggleMoodRatePagerView) {
                     Column {
-                        MoodRatePagerDisplay()
+                        MoodRatePagerDisplay(
+                            selectedMoodStateIndex = moodRate - 1
+                        )
                     }
                 } else {
                     Column {
