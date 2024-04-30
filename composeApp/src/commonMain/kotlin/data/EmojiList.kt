@@ -107,14 +107,14 @@ object EmojiList {
     }
 
     val moodPleasantness = mapOf(
-        -1 to "No Data",
-        1 to "Very Pleasant", // Very Pleasant
-        2 to "Pleasant", //Pleasant
-        3 to "Slightly Pleasant", // Slightly Pleasant
-        4 to "Neutral", // Neutral
-        5 to "Slightly Unpleasant", // Slightly Unpleasant
-        6 to "Unpleasant", // Unpleasant
-        7 to "Very Unpleasant", // Very Unpleasant
+        -1 to "Tidak Ada Data",
+        1 to "Sangat Senang", // Very Pleasant
+        2 to "Senang", // Pleasant
+        3 to "Agak Senang", // Slightly Pleasant
+        4 to "Netral", // Neutral
+        5 to "Agak Tidak Senang", // Slightly Unpleasant
+        6 to "Tidak Senang", // Unpleasant
+        7 to "Sangat Tidak Senang", // Very Unpleasant
     )
 
     val moodPleasantnessEmojiMapping = mapOf(
