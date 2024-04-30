@@ -51,13 +51,16 @@ import getScreenSizeInfo
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
+import kotlinx.datetime.until
 import mabia.composeapp.generated.resources.Res
 import mabia.composeapp.generated.resources.weekdays
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -91,12 +94,19 @@ fun WeekView(
                 listOf()
             }
 
+            val start = LocalDate(year = today.year, monthNumber = today.monthNumber, dayOfMonth = 1)
+            val end = start.plus(1, DateTimeUnit.MONTH)
+            val totalDayCountInTheMonth = start.until(end, DateTimeUnit.DAY)
+
             days.forEach {
                 val isToday = it == today.dayOfWeek.isoDayNumber
                 val todayDayOfWeek = today.dayOfWeek.isoDayNumber
                 val isFuture = it > todayDayOfWeek
                 val todayDayOfMonth = today.dayOfMonth
-                val dayOfMonth = todayDayOfMonth - (todayDayOfWeek - it)
+                var dayOfMonth = todayDayOfMonth - (todayDayOfWeek - it)
+                if (dayOfMonth > totalDayCountInTheMonth) {
+                    dayOfMonth -= totalDayCountInTheMonth
+                }
                 val monthSection = it == 0
                 val upperLabel = if (it == 0) {
                     today.year.toString()
