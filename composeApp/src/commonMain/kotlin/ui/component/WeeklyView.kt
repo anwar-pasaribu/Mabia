@@ -84,7 +84,7 @@ fun WeekView(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 2.dp, top = 2.dp, end = 2.dp, bottom = 2.dp),
+                .padding(2.dp),
         ) {
 
             val days = listOf(0) + getWeekDays()
