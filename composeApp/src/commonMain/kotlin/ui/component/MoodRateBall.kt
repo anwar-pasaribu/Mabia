@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,31 +38,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import data.EmojiList
-import kotlinx.collections.immutable.toImmutableList
+import io.github.alexzhirkevich.compottie.LottieAnimation
+import io.github.alexzhirkevich.compottie.LottieCompositionSpec
+import io.github.alexzhirkevich.compottie.LottieConstants
+import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
+import io.github.alexzhirkevich.compottie.rememberLottieComposition
+import kotlinx.coroutines.delay
 import mabia.composeapp.generated.resources.Res
-import mabia.composeapp.generated.resources.bad
-import mabia.composeapp.generated.resources.good
-import mabia.composeapp.generated.resources.neutral
-import mabia.composeapp.generated.resources.very_bad
-import mabia.composeapp.generated.resources.very_good
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import ui.extension.bouncingClickable
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun MoodRateView(
     modifier: Modifier = Modifier,
     moodRate: Int = -1,
-    loadingState: Boolean = true
+    loadingState: Boolean = true,
+    staticMode: Boolean = false
 ) {
 
     val isLoading = remember { mutableStateOf(loadingState) }
 
     var bgColor by remember {
-        mutableStateOf(getBackgroundColorForMood(moodRate))
+        mutableStateOf(EmojiList.getBackgroundColorForMood(moodRate))
     }
 
     LaunchedEffect(moodRate, loadingState) {
-        bgColor = getBackgroundColorForMood(moodRate)
+        bgColor = EmojiList.getBackgroundColorForMood(moodRate)
         isLoading.value = loadingState
     }
     val loadingTransition = updateTransition(isLoading, label = "LoadingTransition")
@@ -82,12 +82,12 @@ fun MoodRateView(
     val updatedColorAnimVal1 by updatedTransition.animateColor(
         transitionSpec = { tween(durationMillis = 2000, easing = EaseOutCirc) }, label = "color1"
     ) {
-        getBackgroundColorForMood(it)[0]
+        EmojiList.getBackgroundColorForMood(it)[0]
     }
     val updatedColorAnimVal2 by updatedTransition.animateColor(
         transitionSpec = { tween(durationMillis = 2000, easing = EaseOutCirc) }, label = "color2"
     ) {
-        getBackgroundColorForMood(it)[1]
+        EmojiList.getBackgroundColorForMood(it)[1]
     }
 
     val colorAnimation = rememberInfiniteTransition(label = "PulsatingMoodRate")
@@ -184,22 +184,9 @@ fun MoodRateView(
                             shape = CircleShape
                         )
                 ) {
-                    Text(text = "$moodRate", modifier = Modifier.align(Alignment.Center))
-                    val imgRes = when(moodRate) {
-                            EmojiList.MOOD_1 -> Res.drawable.very_good
-                            EmojiList.MOOD_2 -> Res.drawable.good
-                            EmojiList.MOOD_3 -> Res.drawable.good
-                            EmojiList.MOOD_4 -> Res.drawable.neutral
-                            EmojiList.MOOD_5 -> Res.drawable.bad
-                            EmojiList.MOOD_6 -> Res.drawable.bad
-                            EmojiList.MOOD_7 -> Res.drawable.very_bad
-                            else -> Res.drawable.neutral
+                    Box(modifier = Modifier.align(Alignment.Center)) {
+                        MoodRateDisplay(moodRate = moodRate, playable = !staticMode)
                     }
-                    ImageWrapper(
-                        modifier = Modifier.align(Alignment.Center).size(128.dp),
-                        resource = imgRes,
-                        contentDescription = moodRate.toString()
-                    )
                 }
                 Box(
                     modifier = Modifier
@@ -227,21 +214,69 @@ fun MoodRateView(
     }
 }
 
-private fun getBackgroundColorForMood(moodRating: Int): List<Color> {
-    return when (moodRating) {
-        EmojiList.MOOD_1 -> listOf(
-            Color(0xFF50C878),
-            Color(0xFF00755E)
-        ) // Vibrant and modern color for very pleasant mood
-        EmojiList.MOOD_2 -> listOf(Color(0xFF71C5E8), Color(0xFF0C81E6)) // Pleasant mood
-        EmojiList.MOOD_3 -> listOf(Color(0xFFFFD700), Color(0xFFFFA500)) // Slightly pleasant mood
-        EmojiList.MOOD_4 -> listOf(Color(0xFFFFFFFF), Color(0xFFD3D3D3)) // Neutral mood
-        EmojiList.MOOD_5 -> listOf(Color(0xFFFF6347), Color(0xFFCD5C5C)) // Slightly unpleasant mood
-        EmojiList.MOOD_6 -> listOf(Color(0xFF8B0000), Color(0xFFB22222)) // Unpleasant mood
-        EmojiList.MOOD_7 -> listOf(Color(0xFF696969), Color(0xFF363636)) // Very unpleasant mood
-        else -> listOf(
-            Color(0xFFE0E0E0),
-            Color(0xFFBEBEBE)
-        ) // Default grayish gradient for unknown mood
-    }.toImmutableList()
+@Composable
+private fun MoodRateDisplay(moodRate: Int, playable: Boolean = true) {
+
+    var playing by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(moodRate) {
+        delay(300)
+        if (playable) {
+            playing = true
+        }
+    }
+
+    Box(modifier = Modifier
+        .bouncingClickable(enabled = !playing && playable) {
+            playing = !playing
+        }) {
+        ComposeLottieAnimation(moodRate = moodRate, playing) {
+            playing = false
+        }
+    }
+
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun ComposeLottieAnimation(moodRate: Int, play: Boolean, onFinished: () -> Unit) {
+
+    var lottieJsonString by remember {
+        mutableStateOf("")
+    }
+    LaunchedEffect(moodRate) {
+        val lottieJson = when (moodRate) {
+            EmojiList.MOOD_1 -> "files/u1f60d_heart_eyes.json"
+            EmojiList.MOOD_2 -> "files/u1f603_smile-with-big-eyes.json"
+            EmojiList.MOOD_3 -> "files/u1f604_grin.json"
+            EmojiList.MOOD_4 -> "files/u1f610_neutral_face.json"
+            EmojiList.MOOD_5 -> "files/u1f61e_sad.json"
+            EmojiList.MOOD_6 -> "files/u1f629_weary.json"
+            EmojiList.MOOD_7 -> "files/u1f62b_distraught.json"
+            else -> "files/u1fae5_dotted_line_face.json"
+        }
+        lottieJsonString = Res.readBytes(lottieJson).decodeToString()
+    }
+
+    val composition by rememberLottieComposition(
+        LottieCompositionSpec.JsonString(lottieJsonString)
+    )
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        isPlaying = play,
+        iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(
+        modifier = Modifier.size(128.dp),
+        composition = composition,
+        progress = { progress }
+    )
+
+    LaunchedEffect(progress) {
+        if (progress >= .95F) {
+            onFinished()
+        }
+    }
 }

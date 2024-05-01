@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,29 +19,39 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
+import androidx.compose.ui.zIndex
+import data.EmojiList
+import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.DayOfWeek
-import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
+import kotlinx.datetime.todayIn
 import ui.extension.bouncingClickable
+import ui.screen.emojis.model.DayEmojiData
+import ui.screen.emojis.model.MonthEmojiData
 
 @Composable
-private fun CalendarCell(
+private fun EmojiCalendarCell(
     cellText: String,
+    cellEmoji: String,
+    cellEmojiBubbleColor: Color = Color.White,
     signal: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    cellExtraContent: @Composable BoxScope.() -> Unit = {}
+    cellExtraContent: @Composable() (BoxScope.() -> Unit) = {},
 ) {
     val circleShape = remember { CircleShape }
+    val cellEmojiBubbleColorWithAlpha = remember { cellEmojiBubbleColor.copy(alpha = .5F) }
     Box(
         modifier = modifier
             .aspectRatio(1f)
@@ -69,24 +80,47 @@ private fun CalendarCell(
             }
             Text(
                 text = cellText,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold
+                ),
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.align(Alignment.Center)
             )
         }
+
         cellExtraContent()
+
+        if (cellEmoji.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .graphicsLayer {
+                        shape = CircleShape
+                        shadowElevation = 8F
+                    }
+                    .clip(CircleShape)
+                    .fillMaxSize(.45F)
+                    .zIndex(11F)
+                    .background(Color.White, circleShape)
+                    .align(Alignment.BottomEnd),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(cellEmojiBubbleColorWithAlpha, circleShape)
+                        .fillMaxSize()
+                        .align(Alignment.Center),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        modifier = Modifier.wrapContentSize(),
+                        textAlign = TextAlign.Center,
+                        text = cellEmoji,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
+        }
     }
-}
-
-fun getWeekDays(startFromSunday: Boolean = false): ImmutableList<Int> {
-    val aWeek = (1..7).toList()
-    return (if (startFromSunday) aWeek.take(7) + aWeek.drop(1) else aWeek).toImmutableList()
-}
-
-// TODO Local Translation not working for week
-fun Int.getDayOfWeek3Letters(): String {
-    return DayOfWeek(
-        this@getDayOfWeek3Letters
-    ).name.take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
 }
 
 @Composable
@@ -106,21 +140,20 @@ private fun WeekdayCell(weekday: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun CalendarGrid(
-    date: ImmutableList<Pair<LocalDate, Boolean>>,
-    onClick: (LocalDate) -> Unit,
+private fun EmojiCalendarGrid(
+    monthEmojiData: MonthEmojiData,
+    onClick: (DayEmojiData) -> Unit,
     startFromSunday: Boolean,
     modifier: Modifier = Modifier,
     cellExtraContent: @Composable BoxScope.() -> Unit = {}
 ) {
-    val year = date.first().first.year
-    val monthNumber = date.first().first.monthNumber
-    val dayOfMonth = date.first().first.dayOfMonth
-    val day1ThisMonth = date.first().first.minus(dayOfMonth - 1, DateTimeUnit.DAY)
+    val date = monthEmojiData.month
+    val dayOfMonth = date.dayOfMonth
+    val day1ThisMonth = date.minus(dayOfMonth - 1, DateTimeUnit.DAY)
     val diffDaysLastMonth = kotlin.math.abs(day1ThisMonth.dayOfWeek.isoDayNumber - 1)
     val weekdays = remember { getWeekDays(startFromSunday) }
 
-    CalendarCustomLayout(modifier = modifier) {
+    EmojiCalendarCustomLayout(modifier = modifier) {
         weekdays.forEach {
             WeekdayCell(weekday = it)
         }
@@ -130,23 +163,13 @@ private fun CalendarGrid(
             Spacer(modifier = Modifier.fillMaxSize())
         }
 
-//        for (day in 1..if (startFromSunday) dayOfMonth else dayOfMonth - 1) {
-//            CalendarCell(
-//                cellText = day.toString(),
-//                onClick = {
-//                    onClick(
-//                        LocalDate(year = year, monthNumber = monthNumber, dayOfMonth = day)
-//                    )
-//                },
-//                cellExtraContent = cellExtraContent
-//            )
-//        }
-
-        date.forEach {
-            CalendarCell(
-                cellText = it.first.dayOfMonth.toString(),
-                signal = it.second,
-                onClick = { onClick(it.first) },
+        monthEmojiData.dailyEmojis.forEach {
+            EmojiCalendarCell(
+                cellText = it.day.dayOfMonth.toString(),
+                cellEmoji = it.emoji,
+                cellEmojiBubbleColor = EmojiList.getBackgroundColorForMood(it.moodRateValue).first(),
+                signal = it.day.dayOfYear == Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfYear,
+                onClick = { onClick(it) },
                 cellExtraContent = cellExtraContent
             )
         }
@@ -154,7 +177,7 @@ private fun CalendarGrid(
 }
 
 @Composable
-private fun CalendarCustomLayout(
+private fun EmojiCalendarCustomLayout(
     modifier: Modifier = Modifier,
     horizontalGapDp: Dp = 2.dp,
     verticalGapDp: Dp = 2.dp,
@@ -178,7 +201,7 @@ private fun CalendarCustomLayout(
         var currentX = 0
         var currentY = 0
         var isFirstRow = true // Flag to indicate whether it's the first row
-        measurables.forEachIndexed { index, _ ->
+        measurables.forEachIndexed { _, _ ->
             xPos.add(currentX)
             yPos.add(currentY)
 
@@ -222,14 +245,14 @@ private fun CalendarCustomLayout(
 
 
 @Composable
-fun CalendarView(
-    month: LocalDate,
-    date: ImmutableList<Pair<LocalDate, Boolean>>?,
-    onClick: (LocalDate) -> Unit,
+fun EmojiCalendarView(
+    monthEmojiData: MonthEmojiData,
+    onClick: (DayEmojiData) -> Unit,
     startFromSunday: Boolean = false,
     modifier: Modifier = Modifier,
     cellExtraContent: @Composable BoxScope.() -> Unit = {}
 ) {
+    val month = monthEmojiData.month
     val monthYearLabel = remember {
         month.month.name.lowercase().replaceFirstChar { it.uppercaseChar() } +
                 " " + month.year
@@ -244,10 +267,10 @@ fun CalendarView(
                 modifier = Modifier.align(Alignment.Center),
             )
         }
-        if (!date.isNullOrEmpty()) {
-            CalendarGrid(
+        if (!monthEmojiData.dailyEmojis.isEmpty()) {
+            EmojiCalendarGrid(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                date = date,
+                monthEmojiData = monthEmojiData,
                 onClick = onClick,
                 startFromSunday = startFromSunday,
                 cellExtraContent = cellExtraContent

@@ -22,7 +22,7 @@ class UserEmojiDao(private val database: MabiaDatabase): IUserEmojiDao {
             }
     }
 
-    override fun getUserEmojiByTimeStampRange(start: Long, end: Long): Flow<List<EmojiModel>> {
+    override fun getUserEmojiByTimeStampRangeObservable(start: Long, end: Long): Flow<List<EmojiModel>> {
         return database.emojiQueries.selectEmojiByTimeStampRange(start, end)
             .asFlow()
             .mapToList(Dispatchers.IO)
@@ -30,6 +30,13 @@ class UserEmojiDao(private val database: MabiaDatabase): IUserEmojiDao {
                 list.map {
                     EmojiModel(it.id, it.emojiString, it.date)
                 }
+            }
+    }
+
+    override fun getUserEmojiByTimeStampRange(start: Long, end: Long): List<EmojiModel> {
+        return database.emojiQueries.selectEmojiByTimeStampRange(start, end).executeAsList()
+            .map {
+                EmojiModel(it.id, it.emojiString, it.date)
             }
     }
 

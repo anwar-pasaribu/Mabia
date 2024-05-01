@@ -3,7 +3,7 @@ package ui.component
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -17,25 +17,37 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import getScreenSizeInfo
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-
 @Composable
-fun RandomEmojiCircularLayout() {
+fun RandomEmojiCircularLayout2(
+    background: Color = Color.Black,
+    emojis: List<String> = listOf("😀", "😃", "😄", "😁", "😆", "😅", "😂", "😊", "😎", "🤩")
+) {
     val layers = 8 // Number of layers
     val emojisPerLayer = 7 // Number of emojis per layer
     val minEmojiSize = 32.sp // Minimum emoji size
     val maxEmojiSize = 86.sp // Maximum emoji size
-    val emojis = listOf("😀", "😃", "😄", "😁", "😆", "😅", "😂", "😊", "😎", "🤩") // List of emojis
 
     // Draw the emoji at the calculated position
     val textMeasure = rememberTextMeasurer()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Canvas(modifier = Modifier.fillMaxSize().background(Color.Black).scale(1.7F)) {
+    val screenSize = getScreenSizeInfo()
+
+    Box(
+        modifier = Modifier
+            .size(width = screenSize.wDP, height = screenSize.hDP)
+    ) {
+        Canvas(
+            modifier = Modifier
+                .size(width = screenSize.wDP, height = screenSize.hDP)
+                .background(background)
+                .scale(2F)
+        ) {
 
             val canvasW = size.width
             val canvasH = size.height

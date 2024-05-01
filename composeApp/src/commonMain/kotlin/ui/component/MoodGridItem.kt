@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -37,6 +38,7 @@ import ui.extension.bouncingClickable
 fun MoodGridItem(
     modifier: Modifier = Modifier,
     content: String,
+    viewOnlyMode: Boolean = false,
     onSelect: (String, Offset) -> Unit = { _, _ -> }
 ) {
 
@@ -79,21 +81,26 @@ fun MoodGridItem(
     )
 
     val shape = remember { RoundedCornerShape(24.dp) }
+    val background = if (!viewOnlyMode) {
+        MaterialTheme.colorScheme.surfaceContainerHighest.copy(
+            alpha = alphaAnimVal
+        )
+    } else {
+        Color.Transparent
+    }
 
     Box(
         modifier = modifier.then(
             Modifier.fillMaxSize()
                 .scale(sizeAnimation.width, sizeAnimation.height)
-                .bouncingClickable(enabled = !isSelected) {
+                .bouncingClickable(enabled = !isSelected && !viewOnlyMode) {
                     isSelected = !isSelected
                     onSelect(content, emojiCenterOffset)
                 }
                 .clip(shape)
                 .aspectRatio(1F)
                 .background(
-                    MaterialTheme.colorScheme.surfaceContainerHighest.copy(
-                        alpha = alphaAnimVal
-                    )
+                    background
                 )
         ),
         contentAlignment = Alignment.Center

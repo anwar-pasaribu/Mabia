@@ -1,12 +1,6 @@
 
-import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import moe.tlaster.precompose.PreComposeApp
@@ -18,9 +12,10 @@ import moe.tlaster.precompose.navigation.transition.NavTransition
 import org.koin.compose.KoinContext
 import ui.screen.emojis.EmojiListScreen
 import ui.screen.history.HistoryScreen
+import ui.screen.onboarding.MoodRateOnboardingScreen
 import ui.screen.onboarding.Onboarding1
 import ui.screen.onboarding.Onboarding2
-import ui.screen.reward.CongratulateScreen
+import ui.screen.reward.CongratulatingScreen
 import ui.screen.splash.Splash
 import ui.theme.MyAppTheme
 
@@ -69,23 +64,16 @@ fun App(shouldDarkTheme: Boolean = isSystemInDarkTheme()) {
                         }
                     }
                     scene(
-                        route = ScreenRoute.CONGRATULATE,
-                        navTransition = NavTransition(
-                            createTransition = slideInVertically(initialOffsetY = { it }),
-                            destroyTransition = fadeOut() + slideOutVertically(
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    delayMillis = 0,
-                                    easing = EaseInOut
-                                ),
-                                targetOffsetY = { it }),
-                            pauseTransition = scaleOut(targetScale = 0.9f),
-                            resumeTransition = scaleIn(initialScale = 0.9f),
-                            exitTargetContentZIndex = 1f,
-                        ),
+                        route = ScreenRoute.CONGRATULATE
                     ) {
-                        CongratulateScreen {
-                            navigator.goBack()
+                        CongratulatingScreen {
+                            navigator.navigate(
+                                ScreenRoute.ONBOARD_MOOD_RATE,
+                                NavOptions(
+                                    launchSingleTop = true,
+                                    popUpTo = PopUpTo.First()
+                                )
+                            )
                         }
                     }
                     scene(route = ScreenRoute.ONBOARDING1) {
@@ -110,6 +98,18 @@ fun App(shouldDarkTheme: Boolean = isSystemInDarkTheme()) {
                             )
                         }
                     }
+
+                    scene(route = ScreenRoute.ONBOARD_MOOD_RATE) {
+                        MoodRateOnboardingScreen {
+                            navigator.navigate(
+                                ScreenRoute.HOME,
+                                NavOptions(
+                                    launchSingleTop = true,
+                                    popUpTo = PopUpTo.First()
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -123,4 +123,5 @@ object ScreenRoute {
     const val ONBOARDING1 = "/onboarding1"
     const val ONBOARDING2 = "/onboarding2"
     const val CONGRATULATE = "/congratulation"
+    const val ONBOARD_MOOD_RATE = "/onboardingMoodRate"
 }

@@ -8,9 +8,13 @@ interface KeyValueStorageRepository {
 
     fun saveOnboardingFinished()
     fun onboardingFinished(): Boolean
+
+    var moodRateLearned: Boolean
 }
 
-class KeyValueStorageRepositoryImpl(private val localSetting: ILocalSetting): KeyValueStorageRepository {
+class KeyValueStorageRepositoryImpl(
+    private val localSetting: ILocalSetting
+): KeyValueStorageRepository {
     override fun saveValue(key: String, value: Boolean) {
         localSetting.saveBoolean(strKey = key, value = value)
     }
@@ -27,8 +31,13 @@ class KeyValueStorageRepositoryImpl(private val localSetting: ILocalSetting): Ke
         return localSetting.getBoolean(KEY_ONBOARDING_FINISHED)
     }
 
+    override var moodRateLearned: Boolean
+        get() = localSetting.getBoolean(KEY_ONBOARDING_MOOD_RATE)
+        set(value) { localSetting.saveBoolean(KEY_ONBOARDING_MOOD_RATE, value) }
+
     companion object {
         private const val KEY_ONBOARDING_FINISHED = "KEY_ONBOARDING_FINISHED"
+        private const val KEY_ONBOARDING_MOOD_RATE = "KEY_ONBOARDING_MOOD_RATE"
     }
 
 }

@@ -1,9 +1,11 @@
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.Dp
+import config.PlatformType
 
 interface Platform {
     val name: String
+    val type: PlatformType
 }
 
 expect fun getPlatform(): Platform
@@ -22,3 +24,6 @@ expect fun getScreenSizeInfo(): ScreenSizeInfo
 
 @Composable
 expect fun PlayHapticAndSound(trigger: Any)
+
+@Composable
+expect fun MoodRateDisplay(moodRate: Int)

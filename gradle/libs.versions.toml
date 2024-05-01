@@ -19,6 +19,7 @@ haze = "0.6.2"
 calf = "0.4.0"
 generativeai = "0.2.2-1.0.0"
 buildkonfig = "0.15.1"
+lottieCompose = "6.4.0"
 precompose = "1.6.0"
 spotless = "6.25.0"
 koin = "3.6.0-wasm-alpha2"
@@ -50,6 +51,7 @@ haze-materials = { module = "dev.chrisbanes.haze:haze-materials", version.ref = 
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinCompose" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }
 precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
 precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose" }
 

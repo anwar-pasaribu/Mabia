@@ -63,6 +63,8 @@ kotlin {
 
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.7.3"))
             implementation("com.google.firebase:firebase-crashlytics")
+
+            implementation(libs.lottie.compose)
         }
 //        iosMain.dependencies {
 //        }
@@ -92,6 +94,9 @@ kotlin {
 
             implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
             implementation("co.touchlab:stately-concurrent-collections:2.0.6")
+
+            implementation("io.github.alexzhirkevich:compottie:1.1.2")
+            implementation("network.chaintech:compose-multiplatform-screen-capture:1.0.1")
 
         }
 
@@ -130,8 +135,8 @@ android {
         applicationId = "com.unwur.mabiaho"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 10
-        versionName = "1.0.10"
+        versionCode = 11
+        versionName = "1.0.11"
     }
     packaging {
         resources {

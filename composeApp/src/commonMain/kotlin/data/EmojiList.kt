@@ -1,5 +1,7 @@
 package data
 
+import androidx.compose.ui.graphics.Color
+import kotlinx.collections.immutable.toImmutableList
 import ui.screen.emojis.model.EmojiUiModel
 
 object EmojiList {
@@ -62,6 +64,7 @@ object EmojiList {
             "\uD83D\uDE35", // 😵 Dizzy Face
             "\uD83D\uDE36", // 😶 Face Without Mouth
             "\uD83D\uDE37", // 😷 Face with Medical Mask
+            "\uD83D\uDE2E\u200D\uD83D\uDCA8", // 😮‍💨face exhaling
             "\uD83D\uDE38", // 😸 Grinning Cat Face
             "\uD83D\uDE39", // 😹 Cat with Tears of Joy
             "\uD83D\uDE3A", // 😺 Smiling Cat Face
@@ -100,32 +103,29 @@ object EmojiList {
             "\uD83E\uDDCE", // 🧎 Person Kneeling
             "\uD83E\uDDCF", // 🧏 Person Standing: Medium-Light Skin Tone
             "\uD83E\uDDD0", // 🧐 Face with Monocle
-            "\uD83E\uDDD1", // 🧑‍🦱 Person: Curly Hair
-            "\uD83E\uDDD2", // 🧑‍🦰 Person: Red Hair
-            "\uD83E\uDDD3", // 🧑‍🦳 Person: White Hair
-            "\uD83E\uDDD4", // 🧑‍🦲 Person: Bald
-            "\uD83E\uDDD5", // 🧑‍🦱‍👓 Person with Curly Hair: Glasses
-            "\uD83E\uDDD6", // 🧑‍🦰‍👓 Person with Red Hair: Glasses
-            "\uD83E\uDDD7", // 🧑‍🦳‍👓 Person with White Hair: Glasses
-            "\uD83E\uDDD8", // 🧑‍🦲‍👓 Person with Bald: Glasses
-            "\uD83E\uDDD9", // 🧑‍🦱‍🔬 Person with Curly Hair: Lab Coat
-            "\uD83E\uDDDA", // 🧑‍🦰‍🔬 Person with Red Hair: Lab Coat
-            "\uD83E\uDDDB", // 🧑‍🦳‍🔬 Person with White Hair: Lab Coat
-            "\uD83E\uDDDC", // 🧑‍🦲‍🔬 Person with Bald: Lab Coat
-            "\uD83E\uDDDD", // 🧑‍🦱‍💼 Person with Curly Hair: Business Suit
-            "\uD83E\uDDDE", // 🧑‍🦰‍💼 Person with Red Hair: Business Suit
         )
     }
 
     val moodPleasantness = mapOf(
-        -1 to "No Data",
-        1 to "Very Pleasant", // Very Pleasant
-        2 to "Pleasant", //Pleasant
-        3 to "Slightly Pleasant", // Slightly Pleasant
-        4 to "Neutral", // Neutral
-        5 to "Slightly Unpleasant", // Slightly Unpleasant
-        6 to "Unpleasant", // Unpleasant
-        7 to "Very Unpleasant", // Very Unpleasant
+        -1 to "Tidak Ada Data",
+        1 to "Sangat Senang", // Very Pleasant
+        2 to "Senang", // Pleasant
+        3 to "Agak Senang", // Slightly Pleasant
+        4 to "Netral", // Neutral
+        5 to "Agak Tidak Senang", // Slightly Unpleasant
+        6 to "Tidak Senang", // Unpleasant
+        7 to "Sangat Tidak Senang", // Very Unpleasant
+    )
+
+    val moodPleasantnessEmojiMapping = mapOf(
+        -1 to "",
+        1 to "\uD83D\uDE0D", // Very Pleasant
+        2 to "\uD83D\uDE03", // Grinning Face with Big Eyes
+        3 to "\uD83D\uDE00", // Grinning Face
+        4 to "\uD83D\uDE10", // Neutral Face
+        5 to "\uD83D\uDE14", // 😔 Pensive Face
+        6 to "\uD83D\uDE29", // 😩 Weary Face
+        7 to "\uD83D\uDE2B", // 😫 Very Unpleasant
     )
 
     val MOOD_UNKNOWN = -1
@@ -232,33 +232,25 @@ object EmojiList {
         "\uD83E\uDDCE" to 2, // 🧎 Person Kneeling
         "\uD83E\uDDCF" to 2, // 🧏 Person Standing: Medium-Light Skin Tone
         "\uD83E\uDDD0" to 3, // 🧐 Face with Monocle
-        "\uD83E\uDDD1" to 4, // 🧑‍🦱 Person: Curly Hair
-        "\uD83E\uDDD2" to 4, // 🧑‍🦰 Person: Red Hair
-        "\uD83E\uDDD3" to 4, // 🧑‍🦳 Person: White Hair
-        "\uD83E\uDDD4" to 4, // 🧑‍🦲 Person: Bald
-        "\uD83E\uDDD5" to 4, // 🧑‍🦱‍👓 Person with Curly Hair: Glasses
-        "\uD83E\uDDD6" to 4, // 🧑‍🦰‍👓 Person with Red Hair: Glasses
-        "\uD83E\uDDD7" to 4, // 🧑‍🦳‍👓 Person with White Hair: Glasses
-        "\uD83E\uDDD8" to 4, // 🧑‍🦲‍👓 Person with Bald: Glasses
-        "\uD83E\uDDD9" to 4, // 🧑‍🦱‍🔬 Person with Curly Hair: Lab Coat
-        "\uD83E\uDDDA" to 4, // 🧑‍🦰‍🔬 Person with Red Hair: Lab Coat
-        "\uD83E\uDDDB" to 4, // 🧑‍🦳‍🔬 Person with White Hair: Lab Coat
-        "\uD83E\uDDDC" to 4, // 🧑‍🦲‍🔬 Person with Bald: Lab Coat
-        "\uD83E\uDDDD" to 4, // 🧑‍🦱‍💼 Person with Curly Hair: Business Suit
-        "\uD83E\uDDDE" to 4, // 🧑‍🦰‍💼 Person with Red Hair: Business Suit
     )
 
-    val emojiList2 by lazy {
-        listOf(
-            "\uD83E\uDDE1", // 🧑‍🦱‍🎤 Person with Curly Hair: Tuxedo
-            "\uD83E\uDDE2", // 🧑‍🦰‍🎤 Person with Red Hair: Tuxedo
-            "\uD83E\uDDE3", // 🧑‍🦳‍🎤 Person with White Hair: Tuxedo
-            "\uD83E\uDDE4", // 🧑‍🦲‍🎤 Person with Bald: Tuxedo
-            "\uD83E\uDDE5", // 🧑‍🦱‍🎨 Person with Curly Hair: Artist
-            "\uD83E\uDDE6", // 🧑‍🦰‍🎨 Person with Red Hair: Artist
-            "\uD83E\uDDE7", // 🧑‍🦳‍🎨 Person with White Hair: Artist
-            "\uD83E\uDDE8", // 🧑‍🦲‍🎨 Person with Bald: Artist
-        )
+    fun getBackgroundColorForMood(moodRating: Int): List<Color> {
+        return when (moodRating) {
+            EmojiList.MOOD_1 -> listOf(
+                Color(0xFF50C878),
+                Color(0xFF00755E)
+            ) // Vibrant and modern color for very pleasant mood
+            EmojiList.MOOD_2 -> listOf(Color(0xFF71C5E8), Color(0xFF0C81E6)) // Pleasant mood
+            EmojiList.MOOD_3 -> listOf(Color(0xFFFFD700), Color(0xFFFFA500)) // Slightly pleasant mood
+            EmojiList.MOOD_4 -> listOf(Color(0xFFFFFFFF), Color(0xFFD3D3D3)) // Neutral mood
+            EmojiList.MOOD_5 -> listOf(Color(0xFFFF6347), Color(0xFFCD5C5C)) // Slightly unpleasant mood
+            EmojiList.MOOD_6 -> listOf(Color(0xFF8B0000), Color(0xFFB22222)) // Unpleasant mood
+            EmojiList.MOOD_7 -> listOf(Color(0xFF696969), Color(0xFF363636)) // Very unpleasant mood
+            else -> listOf(
+                Color(0xFFE0E0E0),
+                Color(0xFFBEBEBE)
+            ) // Default grayish gradient for unknown mood
+        }.toImmutableList()
     }
 
     fun generateEmojiForUI(): List<EmojiUiModel> = emojiList.mapIndexed { index, emojiItem ->
