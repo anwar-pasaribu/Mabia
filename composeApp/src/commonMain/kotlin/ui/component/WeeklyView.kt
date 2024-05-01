@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -56,15 +56,12 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
-import kotlinx.datetime.until
-import mabia.composeapp.generated.resources.Res
-import mabia.composeapp.generated.resources.weekdays
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.stringArrayResource
 import ui.extension.bouncingClickable
 import ui.extension.delayedAlpha
 
@@ -87,101 +84,100 @@ fun WeekView(
                 .padding(2.dp),
         ) {
 
-            val days = listOf(0) + getWeekDays()
-            val weekNames = if (!LocalInspectionMode.current) {
-                mutableListOf("") + stringArrayResource(Res.string.weekdays)
-            } else {
-                listOf()
+            val dateAtFirstOfWeek = today.minus(today.dayOfWeek.isoDayNumber - 1, DateTimeUnit.DAY)
+            val listOfDaysThisWeek = List(7) { index ->
+                dateAtFirstOfWeek.plus(index, DateTimeUnit.DAY)
             }
 
-            val start = LocalDate(year = today.year, monthNumber = today.monthNumber, dayOfMonth = 1)
-            val end = start.plus(1, DateTimeUnit.MONTH)
-            val totalDayCountInTheMonth = start.until(end, DateTimeUnit.DAY)
+            WeeklyViewGrid(
+                upperLabel = today.year.toString(),
+                lowerLabel = today.month.name.take(3),
+                onClick = {
+                    onMonthNameClick()
+                }
+            )
 
-            days.forEach {
-                val isToday = it == today.dayOfWeek.isoDayNumber
+            Spacer(modifier = Modifier.width(10.dp))
+            Box(
+                modifier = Modifier.width(1.dp).height(32.dp)
+                    .background(
+                        MaterialTheme.colorScheme.surfaceContainerHighest,
+                        RoundedCornerShape(.5.dp)
+                    )
+                    .align(Alignment.CenterVertically)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+
+            listOfDaysThisWeek.forEach { date ->
+                val isToday = date.dayOfWeek.isoDayNumber == today.dayOfWeek.isoDayNumber
                 val todayDayOfWeek = today.dayOfWeek.isoDayNumber
-                val isFuture = it > todayDayOfWeek
-                val todayDayOfMonth = today.dayOfMonth
-                var dayOfMonth = todayDayOfMonth - (todayDayOfWeek - it)
-                if (dayOfMonth > totalDayCountInTheMonth) {
-                    dayOfMonth -= totalDayCountInTheMonth
-                }
-                val monthSection = it == 0
-                val upperLabel = if (it == 0) {
-                    today.year.toString()
-                } else {
-                    weekNames.getOrElse(it) { "DDD" }.take(3)
-                }
-                val lowerLabel = if (it == 0) {
-                    today.month.name.take(3)
-                } else {
-                    dayOfMonth.toString()
-                }
+                val isFuture = date.dayOfWeek.isoDayNumber > todayDayOfWeek
+                val dayOfMonth = date.dayOfMonth
+                val upperLabel = date.dayOfWeek.name
+                    .take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
+                val lowerLabel = dayOfMonth.toString()
 
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .alpha(if (isFuture) .4F else 1F)
-                        .clickable(enabled = !isFuture) {
-                            if (monthSection) {
-                                onMonthNameClick()
-                            } else {
-                                val nowTimeStamp = Clock.System.now().toLocalDateTime(tz).time
-                                val selectedDate = LocalDate(
-                                    year = today.year,
-                                    month = today.month,
-                                    dayOfMonth = dayOfMonth
-                                )
-                                val dateTime = LocalDateTime(date = selectedDate, time = nowTimeStamp)
-                                onWeekDayClick(dateTime.toInstant(tz).toEpochMilliseconds())
-                            }
-                        },
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = upperLabel,
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                    Text(
-                        modifier = Modifier.wrapContentWidth(),
-                        text = lowerLabel,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            lineHeightStyle = LineHeightStyle(
-                                alignment = LineHeightStyle.Alignment.Center,
-                                trim = LineHeightStyle.Trim.None
-                            )
-                        ),
-                        textAlign = TextAlign.Center
-                    )
-                    if (isToday) {
-                        Box(
-                            modifier = Modifier.background(
-                                MaterialTheme.colorScheme.inversePrimary,
-                                RoundedCornerShape(1.5.dp)
-                            ).width(16.dp).height(3.dp),
-                        )
+                WeeklyViewGrid(
+                    modifier = Modifier.alpha(if (isFuture) .4F else 1F),
+                    upperLabel = upperLabel,
+                    lowerLabel = lowerLabel,
+                    isToday = isToday,
+                    clickEnabled = !isFuture,
+                    onClick = {
+                        val nowTimeStamp = Clock.System.now().toLocalDateTime(tz).time
+                        val dateTime = LocalDateTime(date = date, time = nowTimeStamp)
+                        onWeekDayClick(dateTime.toInstant(tz).toEpochMilliseconds())
                     }
-                }
-
-                if (it != days.last()) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-
-                if (it == days.first()) {
-                    Box(
-                        modifier = Modifier.width(1.dp).height(32.dp)
-                            .background(
-                                MaterialTheme.colorScheme.surfaceContainerHighest,
-                                RoundedCornerShape(.5.dp)
-                            )
-                            .align(Alignment.CenterVertically)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
             }
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun RowScope.WeeklyViewGrid(
+    modifier: Modifier = Modifier,
+    upperLabel: String,
+    lowerLabel: String,
+    isToday: Boolean = false,
+    clickEnabled: Boolean = true,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier.then(
+            Modifier
+                .weight(1F)
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(enabled = clickEnabled) {
+                    onClick()
+                }),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = upperLabel,
+            style = MaterialTheme.typography.labelSmall,
+        )
+        Text(
+            modifier = Modifier.wrapContentWidth(),
+            text = lowerLabel,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Bold,
+                lineHeightStyle = LineHeightStyle(
+                    alignment = LineHeightStyle.Alignment.Center,
+                    trim = LineHeightStyle.Trim.None
+                )
+            ),
+            textAlign = TextAlign.Center
+        )
+        if (isToday) {
+            Box(
+                modifier = Modifier.background(
+                    MaterialTheme.colorScheme.inversePrimary,
+                    RoundedCornerShape(1.5.dp)
+                ).width(16.dp).height(3.dp),
+            )
         }
     }
 }
