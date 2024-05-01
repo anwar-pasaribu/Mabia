@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -82,36 +80,32 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
 
     Scaffold(
         topBar = {
-            Column {
-                CenterAlignedTopAppBar(
-                    modifier = Modifier.fillMaxWidth().hazeChild(
-                        state = hazeState,
-                        style = HazeMaterials.thin(MaterialTheme.colorScheme.background)
-                    ),
-                    colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
-                    navigationIcon = {
-                        IconButton(
-                            onClick = { onBack() },
-                            modifier = Modifier.size(32.dp),
-                            content = {
-                                Icon(
-                                    modifier = Modifier.fillMaxSize().padding(6.dp),
-                                    painter = rememberVectorPainter(
-                                        image = Icons.AutoMirrored.Filled.ArrowBack
-                                    ),
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                    },
-                    title = {
-                        Text(
-                            "History",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                )
-            }
+            CenterAlignedTopAppBar(
+                modifier = Modifier.fillMaxWidth().hazeChild(
+                    state = hazeState,
+                    style = HazeMaterials.thin(MaterialTheme.colorScheme.background)
+                ),
+                colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
+                navigationIcon = {
+                    IconButton(
+                        onClick = { onBack() },
+                        content = {
+                            Icon(
+                                painter = rememberVectorPainter(
+                                    image = Icons.AutoMirrored.Filled.ArrowBack
+                                ),
+                                contentDescription = "Back"
+                            )
+                        }
+                    )
+                },
+                title = {
+                    Text(
+                        "History",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            )
         },
     ) { contentPadding ->
 
