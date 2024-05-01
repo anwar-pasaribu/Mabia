@@ -96,6 +96,7 @@ kotlin {
             implementation("co.touchlab:stately-concurrent-collections:2.0.6")
 
             implementation("io.github.alexzhirkevich:compottie:1.1.2")
+            implementation("network.chaintech:compose-multiplatform-screen-capture:1.0.1")
 
         }
 

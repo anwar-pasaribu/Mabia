@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import network.chaintech.composeMultiplatformScreenCapture.AppContext
 import ui.theme.MyAppTheme
 import kotlin.math.roundToInt
 
@@ -49,6 +50,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        AppContext.apply { set(this@MainActivity) }
         enableEdgeToEdge()
         setContent {
             val darkTheme = isSystemInDarkTheme()

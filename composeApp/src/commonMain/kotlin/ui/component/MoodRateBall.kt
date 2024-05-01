@@ -1,6 +1,5 @@
 package ui.component
 
-import MoodRateDisplay
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.EaseOutCirc
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -39,14 +38,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import data.EmojiList
+import io.github.alexzhirkevich.compottie.LottieAnimation
+import io.github.alexzhirkevich.compottie.LottieCompositionSpec
+import io.github.alexzhirkevich.compottie.LottieConstants
+import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
+import io.github.alexzhirkevich.compottie.rememberLottieComposition
+import kotlinx.coroutines.delay
+import mabia.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import ui.extension.bouncingClickable
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun MoodRateView(
     modifier: Modifier = Modifier,
     moodRate: Int = -1,
-    loadingState: Boolean = true
+    loadingState: Boolean = true,
+    staticMode: Boolean = false
 ) {
 
     val isLoading = remember { mutableStateOf(loadingState) }
@@ -178,7 +185,7 @@ fun MoodRateView(
                         )
                 ) {
                     Box(modifier = Modifier.align(Alignment.Center)) {
-                        MoodRateDisplay(moodRate)
+                        MoodRateDisplay(moodRate = moodRate, playable = !staticMode)
                     }
                 }
                 Box(
@@ -203,6 +210,73 @@ fun MoodRateView(
                         )
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun MoodRateDisplay(moodRate: Int, playable: Boolean = true) {
+
+    var playing by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(moodRate) {
+        delay(300)
+        if (playable) {
+            playing = true
+        }
+    }
+
+    Box(modifier = Modifier
+        .bouncingClickable(enabled = !playing && playable) {
+            playing = !playing
+        }) {
+        ComposeLottieAnimation(moodRate = moodRate, playing) {
+            playing = false
+        }
+    }
+
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+private fun ComposeLottieAnimation(moodRate: Int, play: Boolean, onFinished: () -> Unit) {
+
+    var lottieJsonString by remember {
+        mutableStateOf("")
+    }
+    LaunchedEffect(moodRate) {
+        val lottieJson = when (moodRate) {
+            EmojiList.MOOD_1 -> "files/u1f60d_heart_eyes.json"
+            EmojiList.MOOD_2 -> "files/u1f603_smile-with-big-eyes.json"
+            EmojiList.MOOD_3 -> "files/u1f604_grin.json"
+            EmojiList.MOOD_4 -> "files/u1f610_neutral_face.json"
+            EmojiList.MOOD_5 -> "files/u1f61e_sad.json"
+            EmojiList.MOOD_6 -> "files/u1f629_weary.json"
+            EmojiList.MOOD_7 -> "files/u1f62b_distraught.json"
+            else -> "files/u1fae5_dotted_line_face.json"
+        }
+        lottieJsonString = Res.readBytes(lottieJson).decodeToString()
+    }
+
+    val composition by rememberLottieComposition(
+        LottieCompositionSpec.JsonString(lottieJsonString)
+    )
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        isPlaying = play,
+        iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(
+        modifier = Modifier.size(128.dp),
+        composition = composition,
+        progress = { progress }
+    )
+
+    LaunchedEffect(progress) {
+        if (progress >= .95F) {
+            onFinished()
         }
     }
 }

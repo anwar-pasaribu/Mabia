@@ -6,9 +6,16 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -16,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+
 
 @Composable
 fun GlassyButton(
@@ -59,5 +67,28 @@ fun GlassyButton(
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp)
     ) {
         buttonText()
+    }
+}
+
+@Composable
+fun CloseButton(
+    modifier: Modifier,
+    enabled: Boolean = true,
+    onClose: () -> Unit
+) {
+    Button(
+        modifier = modifier,
+        enabled = enabled,
+        onClick = {
+            onClose()
+        }
+    ) {
+        Icon(
+            modifier = Modifier.size(20.dp),
+            imageVector = Icons.Default.Close,
+            contentDescription = "Toggle Mood Rate"
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(text = "Tutup")
     }
 }

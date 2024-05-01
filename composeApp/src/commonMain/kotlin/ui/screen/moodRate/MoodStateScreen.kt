@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -27,8 +28,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -58,10 +59,12 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
+import ui.component.CloseButton
 import ui.component.MoodGridItem
 import ui.component.MoodRateView
 import ui.screen.emojis.model.EmojiUiModel
 import ui.screen.onboarding.MoodRatePagerDisplay
+import ui.screen.share.ShareMoodRateDialog
 import ui.viewmodel.MoodStateScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -117,6 +120,7 @@ fun MoodStateScreen(
     val emojiList by viewModel.emojiListStateFlow.collectAsState()
     val moodRate by viewModel.moodRate.collectAsState()
     var toggleMoodRatePagerView by remember { mutableStateOf(false) }
+    var showShareableContent by remember { mutableStateOf(false) }
 
     val targetDateTimeStamp =
         if (selectedTimeStamp != 0L) selectedTimeStamp
@@ -134,6 +138,17 @@ fun MoodStateScreen(
 
     LaunchedEffect(Unit) {
         viewModel.getEmojiByTimeStampRange(targetDateTimeStamp)
+    }
+
+    if (showShareableContent) {
+        ShareMoodRateDialog(
+            onDismiss = {
+                showShareableContent = false
+            },
+            moodRate = moodRate,
+            emojis = emojiList.map { it.emojiUnicode },
+            formattedDate = formattedSelectedDate
+        )
     }
 
     Surface {
@@ -156,12 +171,12 @@ fun MoodStateScreen(
                         .align(Alignment.CenterEnd)
                         .padding(end = 16.dp),
                     onClick = {
-                        toggleMoodRatePagerView = !toggleMoodRatePagerView
+                        showShareableContent = !showShareableContent
                     }
                 ) {
                     Icon(
-                        imageVector = if (toggleMoodRatePagerView) Icons.Default.Close else Icons.Default.Info,
-                        contentDescription = "Toggle Mood Rate"
+                        imageVector = Icons.Filled.Share,
+                        contentDescription = "Share"
                     )
                 }
             }
@@ -177,8 +192,13 @@ fun MoodStateScreen(
                         MoodRatePagerDisplay(
                             selectedMoodStateIndex = moodRate - 1
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        CloseButton(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                            toggleMoodRatePagerView = !toggleMoodRatePagerView
+                        }
                     }
                 } else {
+
                     Column {
                         Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
                             MoodRateView(
@@ -196,10 +216,23 @@ fun MoodStateScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(
-                                    text = targetVal,
-                                    style = MaterialTheme.typography.headlineMedium
-                                )
+                                Row (modifier = Modifier.height(48.dp), verticalAlignment = Alignment.CenterVertically){
+                                    Text(
+                                        text = targetVal,
+                                        style = MaterialTheme.typography.headlineMedium
+                                    )
+                                    IconButton(
+                                        modifier = Modifier,
+                                        onClick = {
+                                            toggleMoodRatePagerView = !toggleMoodRatePagerView
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Info,
+                                            contentDescription = "Toggle Mood Rate"
+                                        )
+                                    }
+                                }
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = formattedSelectedDate,
