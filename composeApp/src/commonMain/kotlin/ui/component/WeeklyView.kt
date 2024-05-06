@@ -61,11 +61,9 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import ui.extension.bouncingClickable
 import ui.extension.delayedAlpha
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun WeekView(
     modifier: Modifier = Modifier,
@@ -108,7 +106,7 @@ fun WeekView(
             )
             Spacer(modifier = Modifier.width(10.dp))
 
-            listOfDaysThisWeek.forEach { date ->
+            listOfDaysThisWeek.forEachIndexed { index, date ->
                 val isToday = date.dayOfWeek.isoDayNumber == today.dayOfWeek.isoDayNumber
                 val todayDayOfWeek = today.dayOfWeek.isoDayNumber
                 val isFuture = date.dayOfWeek.isoDayNumber > todayDayOfWeek
@@ -129,9 +127,10 @@ fun WeekView(
                         onWeekDayClick(dateTime.toInstant(tz).toEpochMilliseconds())
                     }
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                if (index != 6) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
             }
-            Spacer(modifier = Modifier.width(8.dp))
         }
     }
 }
