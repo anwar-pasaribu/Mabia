@@ -1,7 +1,7 @@
 package ui.screen.emojis
 
 import data.EmojiList
-import kotlinx.collections.immutable.persistentListOf
+import domain.usecase.GetGreetingListUseCase
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +16,7 @@ import ui.screen.emojis.model.EmojiUiModel
 class EmojiListScreenViewModel(
     private val kvsRepo: KeyValueStorageRepository,
     private val sqlStorageRepository: ISqlStorageRepository,
+    private val getGreetingListUseCase: GetGreetingListUseCase,
 ): ViewModel() {
 
     private val shouldShowMoodRateOnboarding = kvsRepo.onboardingFinished() && !kvsRepo.moodRateLearned
@@ -35,9 +36,9 @@ class EmojiListScreenViewModel(
 
     fun getGreeting(): String {
         return if (!kvsRepo.onboardingFinished()) {
-            greetingList().first()
+            getGreetingListUseCase().first()
         } else {
-            greetingList().random()
+            getGreetingListUseCase().random()
         }
     }
 
@@ -51,14 +52,4 @@ class EmojiListScreenViewModel(
             sqlStorageRepository.saveEmoji(emojiUnicode)
         }
     }
-
-    private fun greetingList() = persistentListOf(
-        "halo!",
-        "gimana hari ini?",
-        "all good?",
-        "seru ga?",
-        "hi!",
-        "enjoy ga hari ini?",
-        "aman?"
-    )
 }
