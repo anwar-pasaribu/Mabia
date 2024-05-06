@@ -30,7 +30,6 @@ import data.EmojiList
 import org.koin.compose.koinInject
 import ui.component.GlassyButton
 import ui.component.MoodRateView
-import ui.viewmodel.MainViewModel
 
 private val MoodRateDescriptions by lazy {
     listOf(
@@ -47,7 +46,7 @@ private val MoodRateDescriptions by lazy {
 @Composable
 fun MoodRateOnboardingScreen(onFinish: () -> Unit = {}) {
 
-    val viewModel = koinInject<MainViewModel>()
+    val viewModel = koinInject<MoodRateViewModel>()
 
     MoodRateOnboarding {
         viewModel.setMoodStateOnboardingSeen()

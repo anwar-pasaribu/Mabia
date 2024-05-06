@@ -65,7 +65,6 @@ import ui.component.MoodRateView
 import ui.screen.emojis.model.EmojiUiModel
 import ui.screen.onboarding.MoodRatePagerDisplay
 import ui.screen.share.ShareMoodRateDialog
-import ui.viewmodel.MoodStateScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

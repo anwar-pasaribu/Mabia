@@ -1,7 +1,5 @@
 package ui.screen.history
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -10,8 +8,6 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,7 +46,6 @@ import ui.component.ChatBubbleItem
 import ui.component.EmojiCalendarView
 import ui.screen.ai.model.ChatMessage
 import ui.screen.moodRate.MoodStateBottomSheet
-import ui.viewmodel.HistoryScreenViewModel
 import androidx.compose.foundation.lazy.items as lazyColumnItems
 
 @OptIn(
@@ -82,36 +77,32 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
 
     Scaffold(
         topBar = {
-            Column {
-                CenterAlignedTopAppBar(
-                    modifier = Modifier.fillMaxWidth().hazeChild(
-                        state = hazeState,
-                        style = HazeMaterials.thin(MaterialTheme.colorScheme.background)
-                    ),
-                    colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
-                    navigationIcon = {
-                        IconButton(
-                            onClick = { onBack() },
-                            modifier = Modifier.size(32.dp),
-                            content = {
-                                Icon(
-                                    modifier = Modifier.fillMaxSize().padding(6.dp),
-                                    painter = rememberVectorPainter(
-                                        image = Icons.AutoMirrored.Filled.ArrowBack
-                                    ),
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                    },
-                    title = {
-                        Text(
-                            "History",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                )
-            }
+            CenterAlignedTopAppBar(
+                modifier = Modifier.fillMaxWidth().hazeChild(
+                    state = hazeState,
+                    style = HazeMaterials.thin(MaterialTheme.colorScheme.background)
+                ),
+                colors = TopAppBarDefaults.topAppBarColors(Color.Transparent),
+                navigationIcon = {
+                    IconButton(
+                        onClick = { onBack() },
+                        content = {
+                            Icon(
+                                painter = rememberVectorPainter(
+                                    image = Icons.AutoMirrored.Filled.ArrowBack
+                                ),
+                                contentDescription = "Back"
+                            )
+                        }
+                    )
+                },
+                title = {
+                    Text(
+                        "History",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            )
         },
     ) { contentPadding ->
 
@@ -119,34 +110,29 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
             lazyColumnListState.scrollToItem(calendarList.size)
         }
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().haze(state = hazeState),
+            state = lazyColumnListState,
+            contentPadding = PaddingValues(
+                start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
+                top = contentPadding.calculateTopPadding() + 16.dp,
+                end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
+                bottom = contentPadding.calculateBottomPadding() + WindowInsets.systemBars.asPaddingValues()
+                    .calculateBottomPadding()
+            ),
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().haze(state = hazeState),
-                state = lazyColumnListState,
-                contentPadding = PaddingValues(
-                    start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
-                    top = contentPadding.calculateTopPadding() + 16.dp,
-                    end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
-                    bottom = contentPadding.calculateBottomPadding() + WindowInsets.systemBars.asPaddingValues()
-                        .calculateBottomPadding()
-                ),
-            ) {
 
-                lazyColumnItems(
-                    items = calendarList,
-                    key = { it.month.monthNumber }
-                ) { emojiCalendarItem ->
-                    EmojiCalendarView(
-                        monthEmojiData = emojiCalendarItem,
-                        onClick = { selectedDate ->
-                            showSheet = true
-                            viewModel.getEmojiByTimeStampRange(selectedDate.day)
-                        },
-                    )
-                }
+            lazyColumnItems(
+                items = calendarList,
+                key = { it.month.monthNumber }
+            ) { emojiCalendarItem ->
+                EmojiCalendarView(
+                    monthEmojiData = emojiCalendarItem,
+                    onClick = { selectedDate ->
+                        showSheet = true
+                        viewModel.getEmojiByTimeStampRange(selectedDate.day)
+                    },
+                )
             }
         }
     }
