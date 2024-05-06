@@ -29,7 +29,6 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.imageResource
 import org.koin.compose.koinInject
 import ui.component.GlassyButton
-import ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -37,7 +36,7 @@ fun CongratulatingScreen(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit
 ) {
-    val viewModel = koinInject<MainViewModel>()
+    val viewModel = koinInject<CongratulationViewModel>()
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (LocalInspectionMode.current) {

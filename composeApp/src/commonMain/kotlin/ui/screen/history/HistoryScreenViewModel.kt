@@ -1,8 +1,10 @@
-package ui.viewmodel
+package ui.screen.history
 
 import androidx.compose.ui.util.fastMap
 import data.EmojiList
 import dev.shreyaspatil.ai.client.generativeai.type.content
+import domain.usecase.GetEmojisByDateUseCase
+import domain.usecase.GetMoodRateCalculationUseCase
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -16,14 +18,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import kotlinx.datetime.until
 import moe.tlaster.precompose.viewmodel.ViewModel
@@ -38,7 +38,6 @@ import ui.screen.ai.model.UserChatMessage
 import ui.screen.emojis.model.DayEmojiData
 import ui.screen.emojis.model.EmojiUiModel
 import ui.screen.emojis.model.MonthEmojiData
-import kotlin.math.roundToInt
 
 
 data class HistoryUiState(
@@ -49,6 +48,8 @@ data class HistoryUiState(
 class HistoryScreenViewModel(
     private val sqlStorageRepository: ISqlStorageRepository,
     private val aiService: GenerativeAiService,
+    private val getEmojisByDateUseCase: GetEmojisByDateUseCase,
+    private val getMoodRateCalculationUseCase: GetMoodRateCalculationUseCase,
 ) : ViewModel() {
 
     val selectedTimeStamp = MutableStateFlow(Clock.System.now().toEpochMilliseconds())
@@ -76,8 +77,6 @@ class HistoryScreenViewModel(
                 val tz = TimeZone.currentSystemDefault()
                 val today: LocalDate = Clock.System.todayIn(tz)
                 val calendarEmojis = mutableListOf<MonthEmojiData>()
-                val firstSecondOfTheDay = LocalTime(hour = 0, minute = 0, second = 1)
-                val lastSecondOfTheDay = LocalTime(hour = 23, minute = 59, second = 59)
 
                 for (monthNum in 1..today.monthNumber) {
 
@@ -100,24 +99,10 @@ class HistoryScreenViewModel(
                             dayOfMonth = day
                         )
 
-                        val dateTime = LocalDateTime(date = dayLocalDate, time = lastSecondOfTheDay)
-                        val untilTimeStampMillis = dateTime.toInstant(tz).toEpochMilliseconds()
-
-                        val startTimeStampMillis = LocalDateTime(
-                            date = dayLocalDate,
-                            time = firstSecondOfTheDay
-                        ).toInstant(tz).toEpochMilliseconds()
-
-                        val emojiListToday = sqlStorageRepository
-                            .getEmojiByTimestampRange(startTimeStampMillis, untilTimeStampMillis)
-                        val emojiFrequencyCounter: Map<String, Int> = emojiListToday
-                            .groupingBy { it.emojiUnicode }
-                            .eachCount()
-                        val emojiFrequencyPercentage = generateEmojiFrequencyPercentage(
-                            emojiFrequencyCounter
+                        val emojiListToday = getEmojisByDateUseCase.invoke(dayLocalDate)
+                        val moodRate = getMoodRateCalculationUseCase.invoke(
+                            emojiListToday.map { it.emojiUnicode }
                         )
-
-                        val moodRate = calculateMoodRating(emojiFrequencyPercentage)
                         val emojiByMoodRate = EmojiList.moodPleasantnessEmojiMapping[moodRate]
                         dailyEmojiList.add(
                             DayEmojiData(
@@ -161,83 +146,19 @@ class HistoryScreenViewModel(
         selectedTimeStamp.value = untilTimeStampMillis
 
         _uiState.canSendMessage = false
-        val selectedDateTime = Instant.fromEpochMilliseconds(
-            untilTimeStampMillis
-        ).toLocalDateTime(tz)
-        val firstSecondOfTheDay = LocalTime(hour = 0, minute = 0, second = 1)
-        val dateTimeTodayMorning =
-            LocalDateTime(date = selectedDateTime.date, time = firstSecondOfTheDay)
-        val startTimeStampMillis = dateTimeTodayMorning.toInstant(tz).toEpochMilliseconds()
 
         viewModelScope.launch {
             _moodRate.value = EmojiList.MOOD_UNKNOWN
             emojiListStateFlow.emit(emptyList())
             emojiUnicodeList.clear()
             delay(300)
-            sqlStorageRepository
-                .getEmojiByTimestampRangeObservable(startTimeStampMillis, untilTimeStampMillis)
-                .collect { emojiList ->
-                    emojiListStateFlow.emit(
-                        emojiList.fastMap { emoji ->
-                            EmojiUiModel(id = emoji.id.toInt(), emojiUnicode = emoji.emojiUnicode)
-                        }
-                    )
 
-                    val emojiFrequencyCounter: Map<String, Int> = emojiList
-                        .groupingBy { it.emojiUnicode }
-                        .eachCount()
-
-                    val emojiFrequencyPercentage = generateEmojiFrequencyPercentage(emojiFrequencyCounter)
-                    _moodRate.value = calculateMoodRating(emojiFrequencyPercentage)
-                    _uiState.canSendMessage = emojiUnicodeList.isNotEmpty()
-                }
-        }
-    }
-
-    private fun generateEmojiFrequencyPercentage(emojiUnicodeList: Map<String, Int>): Map<String, Double> {
-        val percentages = mutableMapOf<String, Double>()
-        if (emojiUnicodeList.isEmpty()) {
-            return percentages
-        }
-
-        val totalEmojis = emojiUnicodeList.values.sum()
-
-
-        for ((emoji, count) in emojiUnicodeList) {
-            val percentage = (count.toDouble() / totalEmojis) * 100
-            percentages[emoji] = percentage
-        }
-
-        return percentages
-
-    }
-
-    /**
-     * In Russell's circumplex model, affective states are represented in a two-dimensional space: valence (pleasure) and arousal (activation). Valence ranges from unpleasant to pleasant, while arousal ranges from low to high activation. We can use this model to assign mood ratings based on the valence of the emojis.
-     *
-     * Here's an approach to calculating the mood rating using Russell's circumplex model:
-     */
-    private fun calculateMoodRating(emojiMap: Map<String, Double>): Int {
-
-        var totalWeightedFrequency = 0.0
-        var totalFrequency = 0.0
-
-        emojiMap.forEach { (emoji, frequency) ->
-            val weight = EmojiList.emojiWeights[emoji]
-            if (weight != null) {
-                totalWeightedFrequency += frequency * weight
-                totalFrequency += frequency
-            }
-        }
-
-        // Calculate the weighted average pleasantness level
-        val averagePleasantness = totalWeightedFrequency / totalFrequency
-
-        // Round the average pleasantness level to the nearest integer
-        return try {
-            averagePleasantness.roundToInt()
-        } catch (e: IllegalArgumentException) {
-            EmojiList.MOOD_UNKNOWN
+            val emojiUiModelList = getEmojisByDateUseCase.invoke(selectedLocalDate)
+            emojiListStateFlow.emit(emojiUiModelList)
+            _moodRate.value = getMoodRateCalculationUseCase.invoke(
+                emojiUiModelList.map { it.emojiUnicode }
+            )
+            _uiState.canSendMessage = emojiUnicodeList.isNotEmpty()
         }
     }
 

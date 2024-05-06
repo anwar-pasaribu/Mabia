@@ -1,7 +1,5 @@
 package ui.screen.history
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -48,7 +46,6 @@ import ui.component.ChatBubbleItem
 import ui.component.EmojiCalendarView
 import ui.screen.ai.model.ChatMessage
 import ui.screen.moodRate.MoodStateBottomSheet
-import ui.viewmodel.HistoryScreenViewModel
 import androidx.compose.foundation.lazy.items as lazyColumnItems
 
 @OptIn(
@@ -113,34 +110,29 @@ fun HistoryScreen(onBack: () -> Unit = {}) {
             lazyColumnListState.scrollToItem(calendarList.size)
         }
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Top
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().haze(state = hazeState),
+            state = lazyColumnListState,
+            contentPadding = PaddingValues(
+                start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
+                top = contentPadding.calculateTopPadding() + 16.dp,
+                end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
+                bottom = contentPadding.calculateBottomPadding() + WindowInsets.systemBars.asPaddingValues()
+                    .calculateBottomPadding()
+            ),
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().haze(state = hazeState),
-                state = lazyColumnListState,
-                contentPadding = PaddingValues(
-                    start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
-                    top = contentPadding.calculateTopPadding() + 16.dp,
-                    end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
-                    bottom = contentPadding.calculateBottomPadding() + WindowInsets.systemBars.asPaddingValues()
-                        .calculateBottomPadding()
-                ),
-            ) {
 
-                lazyColumnItems(
-                    items = calendarList,
-                    key = { it.month.monthNumber }
-                ) { emojiCalendarItem ->
-                    EmojiCalendarView(
-                        monthEmojiData = emojiCalendarItem,
-                        onClick = { selectedDate ->
-                            showSheet = true
-                            viewModel.getEmojiByTimeStampRange(selectedDate.day)
-                        },
-                    )
-                }
+            lazyColumnItems(
+                items = calendarList,
+                key = { it.month.monthNumber }
+            ) { emojiCalendarItem ->
+                EmojiCalendarView(
+                    monthEmojiData = emojiCalendarItem,
+                    onClick = { selectedDate ->
+                        showSheet = true
+                        viewModel.getEmojiByTimeStampRange(selectedDate.day)
+                    },
+                )
             }
         }
     }

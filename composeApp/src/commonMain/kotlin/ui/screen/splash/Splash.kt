@@ -21,13 +21,12 @@ import mabia.composeapp.generated.resources.ic_logo_mabia_normal_eye
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.koinInject
 import ui.component.ImageWrapper
-import ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun Splash(launchScreen: (route: String) -> Unit) {
 
-    val viewModel = koinInject<MainViewModel>()
+    val viewModel = koinInject<SplashViewModel>()
 
     LaunchedEffect(true) {
         val initialScreen = if (viewModel.onboardingFinished()) {
